@@ -1,0 +1,57 @@
+# ~/.mbsyncrc
+# Time-stamp: <2023-11-22 21:12:25 minilolh>
+# https://isync.sourceforge.io/mbsync.html
+# https://www.macs.hw.ac.uk/~rs46/posts/2014-01-13-mu4e-email-client.html
+
+
+IMAPStore gmail-remote
+Host imap.gmail.com
+Port 993
+SSLType IMAPS
+User lincoln@ccvlp.org
+#PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.mbsyncpass.gpg"
+UseKeychain yes
+SSLType IMAPS
+CertificateFile /opt/local/etc/openssl/cert.pem
+
+MaildirStore gmail-local
+Subfolders Verbatim
+Path ~/.local/share/mail/gmail/
+Inbox ~/.local/share/mail/gmail/INBOX
+
+Channel gmail
+Far :gmail-remote:
+Near :gmail-local:
+Patterns INBOX ![Gmail] "[Gmail]/All Mail" "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/Trash"
+Create Near
+Remove Both
+SyncState *
+Expunge None
+
+
+
+
+
+IMAPStore icloud-remote
+Host imap.mail.me.com
+Port 993
+SSLType STARTTLS
+User lincolnlaw@mac.com
+#PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.mbsyncpass-ic.gpg"
+UseKeychain yes
+SSLType IMAPS
+CertificateFile /opt/local/etc/openssl/cert.pem
+
+MaildirStore icloud-local
+Subfolders Verbatim
+Path ~/.local/share/mail/icloud/
+Inbox ~/.local/share/mail/icloud/Inbox
+
+Channel icloud
+Far :icloud-remote:
+Near :icloud-local:
+Patterns "%INBOX" "%Drafts" "%Sent Messages" "%Deleted Messages"
+Create Near
+Remove Both
+SyncState *
+Expunge None
