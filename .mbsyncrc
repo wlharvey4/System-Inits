@@ -32,26 +32,27 @@ Expunge None
 
 
 
-IMAPStore icloud-remote
-Host imap.mail.me.com
-Port 993
-SSLType STARTTLS
-User lincolnlaw@mac.com
-#PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.mbsyncpass-ic.gpg"
-UseKeychain yes
-SSLType IMAPS
-CertificateFile /opt/local/etc/openssl/cert.pem
+# IMAPStore icloud-remote
+# Host imap.mail.me.com
+# Port 993
+# SSLType STARTTLS
+# User lincolnlaw@mac.com
+# #PassCmd "gpg2 -q --for-your-eyes-only --no-tty -d ~/.mbsyncpass-ic.gpg"
+# UseKeychain yes
+# SSLType IMAPS
+# CertificateFile /opt/local/etc/openssl/cert.pem
 
-MaildirStore icloud-local
-Subfolders Verbatim
-Path ~/.local/share/mail/icloud/
-Inbox ~/.local/share/mail/icloud/Inbox
+# MaildirStore icloud-local
+# Subfolders Verbatim
+# Path ~/.local/share/mail/icloud/
+# Inbox ~/.local/share/mail/icloud/INBOX
 
-Channel icloud
-Far :icloud-remote:
-Near :icloud-local:
-Patterns "%INBOX" "%Drafts" "%Sent Messages" "%Deleted Messages"
-Create Near
-Remove Both
-SyncState *
-Expunge None
+# Channel icloud
+# Far :icloud-remote:
+# Near :icloud-local:
+# Patterns INBOX Drafts "/Sent Messages"
+# #"/Junk" "/Deleted Messages" "/Archive" "/Notes"
+# Create Near
+# Remove Both
+# SyncState *
+# Expunge None

@@ -1,7 +1,38 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
+;;; Time-stamp: <2024-01-02 10:00:55 minilolh>
 ;;; Commentary:
 ;;; Code:
 
+
+(diary)
+(setq org-agenda-include-diary t)
+
+(add-hook 'before-save-hook 'time-stamp t)
+
+(require 'ox-texinfo)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Org-Mode
+
+(setq org-todo-keywords
+      '((sequence "TODO(t@)" "NEXT(n)" "WAIT(w@)" "HOLD(h@)" "|" "DONE(d!)" "RECEIVED(!)" "CANCELLED(c!)" )
+        (sequence "DRAFT(D@)" "DRAFTING(!)" "|" "DRAFTED(!)")
+        (sequence "LETTER(l@)" "|" "WROTE(!)")
+        (sequence "REQUEST(r)" "|" "REQUESTED(R!)")
+        (sequence "DELEGATE(@)" "CHECK(@)" "|" "DELEGATED(!)")))
+
+(add-hook 'org-mode-hook
+          (lambda ()
+            (keymap-set org-mode-map "C-c C-."
+                        'org-time-stamp-inactive)))
+
+(setq org-agenda-files
+      '("~/.local/share/notes/ccvlp2/cases"
+        "~/.local/share/notes/personal"))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; mu/mu4e - Mail User Agent
 ;;; mu init -m ~/.local/share/mail --my-address me@gmail.com --my-address me@mac.com ...
 ;;; mu index
@@ -42,22 +73,23 @@
                                         ; add a signature
                                         ; (mu4e-compose-signature . "...")
           (smtpmail-smtp-server . "smtp.gmail.com")))
-       (make-mu4e-context
-        :name "LOLH"
-        :match-func
-        (lambda (msg)
-          (when msg (string-prefix-p "/icloud" (mu4e-message-field msg :maildir))))
-        :vars
-        '((user-mail-address  . "lincolnlaw@mac.com")
-          (user-full-name     . "W. Lincoln Harvey")
-          (mu4e-refile-folder . "/icloud/Archive")
-          (mu4e-sent-folder   . "/icloud/Sent Messages")
-          (mu4e-drafts-folder . "/icloud/Drafts")
-          (mu4e-trash-folder  . "/icloud/Deleted Messages")
-          (mu4e-sent-messages-behavior . sent)
-                                        ; add a signature
-                                        ; (mu4e-compose-signature . "...")
-          (smtpmail-smtp-server . "smtp.mail.me.com")))))
+       ;; (make-mu4e-context
+       ;;  :name "LOLH"
+       ;;  :match-func
+       ;;  (lambda (msg)
+       ;;    (when msg (string-prefix-p "/icloud" (mu4e-message-field msg :maildir))))
+       ;;  :vars
+       ;;  '((user-mail-address  . "lincolnlaw@mac.com")
+       ;;    (user-full-name     . "W. Lincoln Harvey")
+       ;;    (mu4e-refile-folder . "/icloud/Archive")
+       ;;    (mu4e-sent-folder   . "/icloud/Sent Messages")
+       ;;    (mu4e-drafts-folder . "/icloud/Drafts")
+       ;;    (mu4e-trash-folder  . "/icloud/Deleted Messages")
+       ;;    (mu4e-sent-messages-behavior . sent)
+       ;;                                  ; add a signature
+       ;;                                  ; (mu4e-compose-signature . "...")
+       ;;    (smtpmail-smtp-server . "smtp.mail.me.com")))
+       ))
 
 ;;; mu4e - shortcuts to the folders; show up in the mode line
 (setq mu4e-maildir-shortcuts
@@ -87,7 +119,76 @@
 (defun init-emacs ()
   "Open the init.el file in a new frame for editing."
   (interactive)
-  (find-file-other-frame user-init-file))
+  (find-file "~/.config/emacs/lisp/init-local.el"))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Denote
+(setq denote-directory "/Users/minilolh/.local/share/notes")
+
+(require 'denote-org-dblock)
+(require 'denote-silo-extras)
+
+(let ((map global-map))
+  (define-key map (kbd "C-c n n") #'denote)
+  (define-key map (kbd "C-c n c") #'denote-region) ; "contents" mnemonic
+  (define-key map (kbd "C-c n N") #'denote-type)
+  (define-key map (kbd "C-c n d") #'denote-date)
+  (define-key map (kbd "C-c n z") #'denote-signature) ; "zettelkasten" mnemonic
+  (define-key map (kbd "C-c n s") #'denote-subdirectory)
+  (define-key map (kbd "C-c n t") #'denote-template)
+  ;; If you intend to use Denote with a variety of file types, it is
+  ;; easier to bind the link-related commands to the `global-map', as
+  ;; shown here.  Otherwise follow the same pattern for `org-mode-map',
+  ;; `markdown-mode-map', and/or `text-mode-map'.
+  (define-key map (kbd "C-c n i") #'denote-link) ; "insert" mnemonic
+  (define-key map (kbd "C-c n I") #'denote-add-links)
+  (define-key map (kbd "C-c n b") #'denote-backlinks)
+  (define-key map (kbd "C-c n f f") #'denote-find-link)
+  (define-key map (kbd "C-c n f b") #'denote-find-backlink)
+  ;; Note that `denote-rename-file' can work from any context, not just
+  ;; Dired bufffers.  That is why we bind it here to the `global-map'.
+  (define-key map (kbd "C-c n r") #'denote-rename-file)
+  (define-key map (kbd "C-c n R") #'denote-rename-file-using-front-matter)
+  (define-key map (kbd "C-c n l") #'denote-link-after-creating)
+  (define-key map (kbd "C-c n L") #'denote-link-or-create)
+  (define-key map (kbd "C-c n C") #'denote-silo-extras-create-note) ; Create
+  (define-key map (kbd "C-c n O") #'denote-silo-extras-open-or-create) ; Open-or-Create
+  (define-key map (kbd "C-c n S") #'denote-silo-extras-select-silo-then-command)) ; Select-then-Command
+
+;; Key bindings specifically for Dired.
+(let ((map dired-mode-map))
+  (define-key map (kbd "C-c C-d C-i") #'denote-link-dired-marked-notes)
+  (define-key map (kbd "C-c C-d C-r") #'denote-dired-rename-files)
+  (define-key map (kbd "C-c C-d C-k") #'denote-dired-rename-marked-files-with-keywords)
+  (define-key map (kbd "C-c C-d C-R") #'denote-dired-rename-marked-files-using-front-matter))
+
+(setq denote-silo-extras-directories
+      '("~/.local/share/notes/ccvlp2"
+        "~/.local/share/notes/law"
+        "~/.local/share/notes/legal"
+        "~/.local/share/notes/personal"))
+
+;; denote-silo-extras-create-note  :: prompts  for  a directory  among
+;; denote-silo-extras-directories  and runs  the  denote command  from
+;; there.
+;;
+;; denote-silo-extras-open-or-create :: prompts  for a directory among
+;; denote-silo-extras-directories  and runs  the denote-open-or-create
+;; command from there.
+;;
+;; denote-silo-extras-select-silo-then-command    ::   prompts    with
+;; minibuffer      completion      for     a      directory      among
+;; denote-silo-extras-directories.  Once  the user  selects a  silo, a
+;; second prompt asks for a  Denote note-creation command to call from
+;; inside that silo.
+
+;;; (setq denote-link-backlinks-display-buffer-action
+;;       '((display-buffer-reuse-window
+;;          display-buffer-in-side-window)
+;;         (side . left)
+;;         (slot . 99)
+;;         (window-width . 0.3)))
 
 
 (provide 'init-local)

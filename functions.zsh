@@ -1,76 +1,73 @@
 # ~/.oh-my-zsh/custom/functions.zsh -*- mode:sh; -*-
-# Time-stamp: <2023-11-22 21:05:39 minilolh>
+# Time-stamp: <2023-11-22 21:46:31 minilolh>
+
+startup () {
+    termserver
+    guiserver
+    tmux
+ }
 
 guiserver () {
-    GUISERVER=$(emacs --batch --eval='
-    (progn
-      (require (quote server))
-      (princ
-        (car (member "guiserver"
-           (directory-files server-socket-dir nil
-             directory-files-no-dot-files-regexp)))))')
-
-    if [[ ${GUISERVER} == "guiserver" ]];
-    then
-	print "The guiserver is running."
+    # if emacsclient -qs guiserver --eval '(prin1 "The guiserver is running.")' 2>/dev/null
+    if [[ ${GUISERVER} = "RUNNING" ]]; then
+        print "The guiserver is running."
     else
-	emacs&
-	print "Started the guiserver."
+	~/.local/share/emacs/emacs-29.1/build/src/emacs&
+       	print "Started the guiserver."
+        GUISERVER="RUNNING"
     fi
 }
 
-guiserver-kill () {
-    emacsclient -s guiserver -e '(kill-emacs)'
-    print "Killed the guiserver."
+guiserver-stop () {
+    if [[ ${GUISERVER} = "RUNNING" ]]; then
+        emacsclient -s guiserver -e '(kill-emacs)'
+        GUISERVER="STOPPED"
+        print "Killed the guiserver."
+    else
+        :
+    fi
 }
 
 termserver () {
-    TERMSERVER=$(emacs --batch --eval='
-    (progn
-      (require (quote server))
-      (princ
-        (car (member "termserver"
-           (directory-files server-socket-dir nil
-             directory-files-no-dot-files-regexp)))))')
-
-    if [[ $TERMSERVER == "termserver" ]];
-    then
-	print "The termserver is running."
+    # if emacsclient -qs termserver --eval '(prin1 "The termserver is running.")' 2>/dev/null 
+    if [[ ${TERMSERVER} = "RUNNING" ]]; then
+        print "The termserver is running."
     else
-	emacs -nw --daemon=termserver
-	print "Started the termserver."
+	~/.local/share/emacs/emacs-29.1/build/src/emacs -nw --no-desktop --daemon=termserver
+        print "Started the termserver."
+        TERMSERVER="RUNNING"
     fi
 }
 
-termserver-kill () {
-    emacsclient -s termserver -e '(kill-emacs)'
-    print "Killed the termserver."
+termserver-stop () {
+    if [[ $TERMSERVER="RUNNING" ]]; then
+        emacsclient -s termserver -e '(kill-emacs)'
+        TERMSERVER="STOPPED"
+        print "Killed the termserver."
+    else
+        :
+    fi
 }
 
-emacs-servers-start () {
-    guiserver
-    termserver
-}
-
-emacs-servers-kill () {
-    guiserver-kill
-    termserver-kill
+emacs-servers-stop () {
+    guiserver-stop
+    termserver-stop
 }
 
 # This shutdown function kills everything completely no-questions-asked dead.
 shutdown () {
-    emacs-servers-kill
+    emacs-servers-stop
     tmux kill-server
-    exec pkill -lf iTerm2
+    exec pkill -lf iTerm
 }
 
 emacs-servers-help () {
     print "guiserver
 termserver
-guiserver-kill
-termserver-kill
-emacs-servers-start
-emacs-servers-kill
+guiserver-stop
+termserver-stop
+emacs-servers-stop
+startup
 shutdown
 ect
 ecg"
@@ -142,4 +139,43 @@ zbkp () {
     esac
 }
 
-emacs-servers-start
+# 2023-12-04
+ali () {
+    # alisma -a $srcfile $destfile
+    # Creates an alias of $srcfile (from Goodgle Drive) to $destfile (in local file).
+    # Due to a limitation with iTerm not being able to open the Google Drive,
+    # Terminal must be opened from a Finder window opened at the source,
+    # such as "23-2-03006-06 Case Name", and then this command, `ali` is run
+    # from that Terminal window.
+    # TODO: This can be expanded to copy all files in the directory structure.
+
+    SOURCE=$(basename $PWD) # the case name, e.g. 23-2-03006-06 Plaintiff v. Defendant
+    FULL_SOURCE="$PWD"/Court\ File # The directory holding the pleadings
+    FULL_DEST="$CCVLP_DATA"/"$SOURCE"/Court\ File # The directory for the new aliases
+    #print "FULL_SOURCE is $FULL_SOURCE"
+    #print "FULL_DEST is $FULL_DEST"
+
+    mkdir -vp "${FULL_DEST}"
+
+    for srcfile in ${FULL_SOURCE}/*.pdf; do
+        destfile="${FULL_DEST}/$(basename $srcfile)"
+        #print "$srcfile"
+        #print "${destfile}\n"
+        if ! [[ -f $destfile ]]; then
+            #print "Creating ${destfile}."
+            alisma -a "${srcfile}" "${destfile}"
+        #else
+            #print "${destfile} already exists; skipping."
+        fi
+    done
+}
+
+to () {
+
+    cd "$@"
+}
+
+alias toccvlp='to $CCVLP'
+alias tolcnotes='to $LCNOTES'
+alias tocases='to $CASES'
+alias tolsnotes='to $LSNOTES'
