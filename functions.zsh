@@ -1,11 +1,42 @@
 # ~/.oh-my-zsh/custom/functions.zsh -*- mode:sh; -*-
-# Time-stamp: <2023-11-22 21:46:31 minilolh>
+# Time-stamp: <2024-01-05 01:38:38 minilolh>
 
 startup () {
     termserver
     guiserver
     tmux
  }
+
+server-status () {
+    unset ss
+    ss=$(emacsclient -s $1 -e "(car (member \"$1\" (directory-files server-socket-dir)))" 2>/dev/null)
+    printf "%s" ${ss:="nil"}
+}
+
+server-start () {
+    while getopts ":s:t:" name
+    do
+        case $name in ("s") ss=$(server-status $OPTARG);
+                            if [[ $ss != \"$OPTARG\" ]]
+                            then
+                                emacs&
+                            fi
+                            printf "%s is running.\n" $OPTARG;
+                            ;;
+                      ("t") printf "opt: %s  arg: %s\n" $name $OPTARG; echo server termserver;
+                            ss=$(server-status $OPTARG);
+                            if [[ $ss != \"$OPTARG\" ]]
+                            then
+                                emacs -nw --daemon=$OPTARG
+                            fi
+                            printf "%s is running.\n" $OPTARG;
+                            ;;
+                      (":") printf "opt: %s  arg: %s\n" $name $OPTARG; echo missing argument ;;
+                      ("?") printf "opt: %s  arg: %s\n" $name $OPTARG; echo wrong option ;;
+        esac
+    done
+    echo Done
+}
 
 guiserver () {
     # if emacsclient -qs guiserver --eval '(prin1 "The guiserver is running.")' 2>/dev/null

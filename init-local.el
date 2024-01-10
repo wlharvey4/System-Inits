@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-01-02 10:00:55 minilolh>
+;;; Time-stamp: <2024-01-09 19:06:51 minilolh>
 ;;; Commentary:
 ;;; Code:
 
@@ -10,7 +10,7 @@
 (add-hook 'before-save-hook 'time-stamp t)
 
 (require 'ox-texinfo)
-
+(require 'ob-http-autoloads)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Org-Mode
@@ -128,6 +128,7 @@
 
 (require 'denote-org-dblock)
 (require 'denote-silo-extras)
+(require 'template-funcs)
 
 (let ((map global-map))
   (define-key map (kbd "C-c n n") #'denote)
@@ -146,6 +147,7 @@
   (define-key map (kbd "C-c n b") #'denote-backlinks)
   (define-key map (kbd "C-c n f f") #'denote-find-link)
   (define-key map (kbd "C-c n f b") #'denote-find-backlink)
+  (define-key map (kbd "C-c n f s") #'denote-sort-dired)
   ;; Note that `denote-rename-file' can work from any context, not just
   ;; Dired bufffers.  That is why we bind it here to the `global-map'.
   (define-key map (kbd "C-c n r") #'denote-rename-file)
@@ -190,6 +192,10 @@
 ;;         (slot . 99)
 ;;         (window-width . 0.3)))
 
+(setq denote-templates
+      `((tinyurl . ,(tinyurl))
+        (client . ,(newclient))
+        (newcase . ,(newcase))))
 
 (provide 'init-local)
 ;;; init-local.el ends here
