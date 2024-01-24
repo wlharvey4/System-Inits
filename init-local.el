@@ -1,35 +1,50 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-01-09 19:06:51 minilolh>
+;;; Time-stamp: <2024-01-23 17:06:14 minilolh>
 ;;; Commentary:
 ;;; Code:
 
 
-(diary)
-(setq org-agenda-include-diary t)
+;; Add the Super and Hyper modifer keys to Mac
+(setq mac-right-option-modifier 'super)
+(setq ns-function-modifier 'hyper)
+
+;;(setq org-agenda-include-diary t)
 
 (add-hook 'before-save-hook 'time-stamp t)
+(add-hook 'text-mode-hook 'visual-line-mode)
+(add-hook 'dired-mode-hook 'dired-hide-details-mode)
 
 (require 'ox-texinfo)
-(require 'ob-http-autoloads)
+(require 'ob-http)
+
+(add-to-list 'Info-directory-list "~/.local/share/share/info/")
+(add-to-list 'Info-directory-list "~/.local/share/denote")
+;;;(add-to-list 'Info-directory-list "/opt/local/share/info/")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Org-Mode
+
+(setq org-attach-method 'lns)
+
+(add-hook 'org-mode-hook 'org-indent-mode)
+(add-hook 'org-mode-hook
+          (lambda ()
+            (keymap-set org-mode-map "C-c C-."
+                        'org-time-stamp-inactive)))
 
 (setq org-todo-keywords
       '((sequence "TODO(t@)" "NEXT(n)" "WAIT(w@)" "HOLD(h@)" "|" "DONE(d!)" "RECEIVED(!)" "CANCELLED(c!)" )
         (sequence "DRAFT(D@)" "DRAFTING(!)" "|" "DRAFTED(!)")
         (sequence "LETTER(l@)" "|" "WROTE(!)")
         (sequence "REQUEST(r)" "|" "REQUESTED(R!)")
-        (sequence "DELEGATE(@)" "CHECK(@)" "|" "DELEGATED(!)")))
-
-(add-hook 'org-mode-hook
-          (lambda ()
-            (keymap-set org-mode-map "C-c C-."
-                        'org-time-stamp-inactive)))
+        (sequence "DELEGATE(@)" "CHECK(@)" "|" "DELEGATED(!)")
+        (sequence "TASK(T!)" "|" "COMPLETED(C!)")))
 
 (setq org-agenda-files
       '("~/.local/share/notes/ccvlp2/cases"
-        "~/.local/share/notes/personal"))
+        "~/.local/share/notes/personal"
+        "~/.local/share/notes/law"
+        "~/.local/share/notes/legal"))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -97,12 +112,7 @@
         (:maildir "/gmail/[Gmail]/All Mail"     :key ?a)
         (:maildir "/gmail/[Gmail]/Sent Mail"    :key ?s)
         (:maildir "/gmail/[Gmail]/Trash"        :key ?t)
-        (:maildir "/gmail/[Gmail]/Drafts"       :key ?d)
-        (:maildir "/icloud/Inbox"               :key ?I)
-        (:maildir "/icloud/Sent Messages"       :key ?S)
-        (:maildir "/icloud/Deleted Messages"    :key ?T)
-        (:maildir "/icloud/Drafts"              :key ?D)))
-
+        (:maildir "/gmail/[Gmail]/Drafts"       :key ?d)))
 
 ;;; smtpmail - config
 (setq message-send-mail-function 'smtpmail-send-it
@@ -114,7 +124,10 @@
       smtp-debut-info t
       message-kill-buffer-on-exit t)
 
+(define-key global-map (kbd "C-c n m") #'mu4e-org-store-and-capture)
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Custom functions
 (defun init-emacs ()
   "Open the init.el file in a new frame for editing."
@@ -125,6 +138,23 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Denote
 (setq denote-directory "/Users/minilolh/.local/share/notes")
+(setq denote-dired-directories
+      (list
+       denote-directory
+       (expand-file-name "~/.local/share/notes/ccvlp2")
+       (expand-file-name "~/.local/share/notes/ccvlp2/cases")
+       (expand-file-name "~/.local/share/notes/ccvlp2/cases/clients")
+       (expand-file-name "~/.local/share/notes/ccvlp2/cases/attorneys")
+       (expand-file-name "~/.local/share/notes/ccvlp2/cases/closed")
+       (expand-file-name "~/.local/share/notes/legal")
+       (expand-file-name "~/.local/share/notes/personal")))
+(setq denote-dired-directories-include-subdirectories t)
+
+(diredfl-global-mode -1) ; dired-mode does not work with diredfl
+(add-hook 'dired-mode-hook #'denote-dired-mode-in-directories)
+
+(setq denote-prompts '(title keywords signature))
+(setq denote-date-prompt-use-org-read-date t)
 
 (require 'denote-org-dblock)
 (require 'denote-silo-extras)
@@ -167,6 +197,9 @@
 
 (setq denote-silo-extras-directories
       '("~/.local/share/notes/ccvlp2"
+        "~/.local/share/notes/ccvlp2/cases"
+        "~/.local/share/notes/ccvlp2/cases/clients"
+        "~/.local/share/notes/ccvlp2/closed"
         "~/.local/share/notes/law"
         "~/.local/share/notes/legal"
         "~/.local/share/notes/personal"))
@@ -196,6 +229,9 @@
       `((tinyurl . ,(tinyurl))
         (client . ,(newclient))
         (newcase . ,(newcase))))
+
+(setq diary-file "~/.local/share/diary")
+(diary)
 
 (provide 'init-local)
 ;;; init-local.el ends here

@@ -21,10 +21,6 @@
 (defconst *spell-check-support-enabled* nil) ;; Enable with t if you prefer
 (defconst *is-a-mac* (eq system-type 'darwin))
 
-(require 'server)
-(if (display-graphic-p)
-    (setq server-name "guiserver")
-  (setq server-name "termserver"))
 
 ;; Adjust garbage collection thresholds during startup, and thereafter
 
@@ -142,6 +138,7 @@
 
 (require 'init-ledger)
 (require 'init-lua)
+(require 'init-uiua)
 (require 'init-terminals)
 
 ;; Extra packages which don't require any configuration
@@ -173,6 +170,7 @@
 ;; Allow access from emacsclient
 (add-hook 'after-init-hook
           (lambda ()
+            (require 'server)
             (when (display-graphic-p)
               (unless (server-running-p)
                 (and

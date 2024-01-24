@@ -1,5 +1,5 @@
 # ~/.oh-my-zsh/custom/functions.zsh -*- mode:sh; -*-
-# Time-stamp: <2024-01-05 01:38:38 minilolh>
+# Time-stamp: <2024-01-18 12:21:50 minilolh>
 
 startup () {
     termserver
@@ -43,7 +43,8 @@ guiserver () {
     if [[ ${GUISERVER} = "RUNNING" ]]; then
         print "The guiserver is running."
     else
-	~/.local/share/emacs/emacs-29.1/build/src/emacs&
+        # emacs should be in $PATH
+	emacs&
        	print "Started the guiserver."
         GUISERVER="RUNNING"
     fi
@@ -64,7 +65,8 @@ termserver () {
     if [[ ${TERMSERVER} = "RUNNING" ]]; then
         print "The termserver is running."
     else
-	~/.local/share/emacs/emacs-29.1/build/src/emacs -nw --no-desktop --daemon=termserver
+        # emacs should be in $PATH
+	emacs -nw --no-desktop --daemon=termserver
         print "Started the termserver."
         TERMSERVER="RUNNING"
     fi
