@@ -7,7 +7,7 @@ printf "  ${CYAN}sourcing envars.zsh...${CLEAR}\n"
 
 setopt RE_MATCH_PCRE
 
-export INFOPATH=~/.local/share/common-lisp/implementations/share/info:
+export INFOPATH=~/.local/share/common-lisp/implementations/share/info:/opt/local/share/info:/usr/local/share/info:
 
 export COMP=$(hostname -s)
 printf "\t${GREEN}COMP = ${COMP}${CLEAR}\n"

@@ -1,7 +1,7 @@
 # ~/.oh-my-zsh/custom/envvars.zsh -*- mode:sh; -*-
 # Time-stamp: <2024-01-17 17:56:28 minilolh>
 
-#INFOPATH=/opt/local/share/info:
+export INFOPATH=/opt/local/share/info:/usr/local/share/info:
 
 export CLOUDDOCS=$HOME/Library/Mobile\ Documents/com\~apple\~CloudDocs
 export LH_GOOGLEDRIVE=$HOME/Library/CloudStorage/GoogleDrive-lincoln@ccvlp.org/My\ Drive/2023\ UD\ Case\ Prep/Lincoln\ Harvey

@@ -1,29 +1,71 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-01-23 17:06:14 minilolh>
+;;; Time-stamp: <2024-01-25 12:39:12 lolh-mbp-16>
 ;;; Commentary:
+;;; This code covers the following local configurations:
+;;; 0. purcell/emacs.d => ~/.local/share/emacs/purcell-emacs.d/
+;;;    0.1. ~/.config/emacs is a symlink to purcell-emacs.d/
+;;; 1. mu/mu4e => ~/.local/share/mu installed into /usr/local/
+;;;    1.1. mu is installed in /usr/local/bin
+;;;    1.2. mu4e is installed into /usr/local/share/emacs/site-lisp
+;;;    1.3./usr/local/share/emacs/site-lisp/mu4e must be added to load-path
+;;;    1.4. mu4e.info  is installed into /usr/local/share/info
+;;;    1.5. /usr/local/share/info must be added to INFODIR
+;;;    1.6. Configure mu4e
+;;; 2. Denote => ~/.local/share/denote/denote/
+;;;    2.1. README.org needs to be compiled into denote.info, and installed into dir
+;;;    2.2. Add key bindings
+;;;    2.3. Set up default denote directory => ~/.local/share/notes
+;;;    2.4. Set up silos
+;;;         i. ccvlp2
+;;;        ii. law
+;;;       iii. legal
+;;;        iv. personal
+;;; 3. Org
+;;;    3.1. require ox-texinfo to be able to export to info files
+;;;    3.2. org-attach-method needs to be set of lns
+;;;    3.3. set org-indent-mode to get rid of multiple stars in headings
+;;;    3.4. Add key C-c C-. for an inactive time stamp
+;;;    3.5. Add todo keywords
+;;;    3.6. Add org agenda files
+;;; 4. Diary
+;;;    4.1. Set diary file to ~/.local/share/emacs/diary
+;;; 5. Emacs
+;;;    5.1. time-stamp
+;;;    5.2. visual-line-mode
+;;;    5.3. dired-hide-details-mode
+;;; Appendix
+;;; A. Maximize Sceen on Opening: https://www.emacswiki.org/emacs/FullScreen
+;;;    A.1. Emacs will start at a default frame size (small) and then expand if you maximize it
+;;;         To avoid this distracting event, add the  following code to the early-init.el file:
+;;;         (push '(fullscreen . maximized) default-frame-alist)
+;;; B. Denote Faces Title
+;;;    B.1. Customize the face denote-faces-title to be "light green"
 ;;; Code:
 
+;; Set a Diary file
+(setq diary-file "~/.local/share/emacs/diary")
+(diary)
 
 ;; Add the Super and Hyper modifer keys to Mac
 (setq mac-right-option-modifier 'super)
 (setq ns-function-modifier 'hyper)
 
-;;(setq org-agenda-include-diary t)
 
 (add-hook 'before-save-hook 'time-stamp t)
 (add-hook 'text-mode-hook 'visual-line-mode)
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
 
-(require 'ox-texinfo)
-(require 'ob-http)
-
 (add-to-list 'Info-directory-list "~/.local/share/share/info/")
-(add-to-list 'Info-directory-list "~/.local/share/denote")
+(add-to-list 'Info-directory-list "~/.local/share/denote/denote")
 ;;;(add-to-list 'Info-directory-list "/opt/local/share/info/")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Org-Mode
 
+(require 'ox-texinfo)
+;; (require 'ob-http)
+
+(setq org-agenda-include-diary t)
 (setq org-attach-method 'lns)
 
 (add-hook 'org-mode-hook 'org-indent-mode)
@@ -128,14 +170,6 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; Custom functions
-(defun init-emacs ()
-  "Open the init.el file in a new frame for editing."
-  (interactive)
-  (find-file "~/.config/emacs/lisp/init-local.el"))
-
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Denote
 (setq denote-directory "/Users/minilolh/.local/share/notes")
 (setq denote-dired-directories
@@ -230,8 +264,27 @@
         (client . ,(newclient))
         (newcase . ,(newcase))))
 
-(setq diary-file "~/.local/share/diary")
-(diary)
+
+;;; Sample org-capture
+(with-eval-after-load 'org-capture
+  (setq denote-org-capture-specifiers "%l\n%i\n%?")
+  (add-to-list 'org-capture-templates
+               '("n" "New note (with denote.el)" plain
+                 (file denote-last-path)
+                 #'denote-org-capture
+                 :no-save t
+                 :immediate-finish nil
+                 :kill-buffer t
+                 :jump-to-captured t)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Custom functions
+(defun init-emacs ()
+  "Open the init.el file in a new frame for editing."
+  (interactive)
+  (find-file "~/.config/emacs/lisp/init-local.el"))
+
 
 (provide 'init-local)
 ;;; init-local.el ends here
