@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-01-25 12:39:12 lolh-mbp-16>
+;;; Time-stamp: <2024-01-30 03:56:37 minilolh>
 ;;; Commentary:
 ;;; This code covers the following local configurations:
 ;;; 0. purcell/emacs.d => ~/.local/share/emacs/purcell-emacs.d/
@@ -11,7 +11,7 @@
 ;;;    1.4. mu4e.info  is installed into /usr/local/share/info
 ;;;    1.5. /usr/local/share/info must be added to INFODIR
 ;;;    1.6. Configure mu4e
-;;; 2. Denote => ~/.local/share/denote/denote/
+;;; 2. Denote => ~/.local/share/emacs/denote/
 ;;;    2.1. README.org needs to be compiled into denote.info, and installed into dir
 ;;;    2.2. Add key bindings
 ;;;    2.3. Set up default denote directory => ~/.local/share/notes
@@ -34,17 +34,24 @@
 ;;;    5.2. visual-line-mode
 ;;;    5.3. dired-hide-details-mode
 ;;; Appendix
-;;; A. Maximize Sceen on Opening: https://www.emacswiki.org/emacs/FullScreen
+;;; A. Maximize Screen on Opening: https://www.emacswiki.org/emacs/FullScreen
 ;;;    A.1. Emacs will start at a default frame size (small) and then expand if you maximize it
 ;;;         To avoid this distracting event, add the  following code to the early-init.el file:
 ;;;         (push '(fullscreen . maximized) default-frame-alist)
 ;;; B. Denote Faces Title
 ;;;    B.1. Customize the face denote-faces-title to be "light green"
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Code:
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ;; Set a Diary file
-(setq diary-file "~/.local/share/emacs/diary")
+;; Place diary into notes/ccvlp2 so it can saved in a secret repo
+(setq diary-file "~/.local/share/notes/ccvlp2/diary")
 (diary)
+
 
 ;; Add the Super and Hyper modifer keys to Mac
 (setq mac-right-option-modifier 'super)
@@ -54,19 +61,47 @@
 (add-hook 'before-save-hook 'time-stamp t)
 (add-hook 'text-mode-hook 'visual-line-mode)
 (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+;;; See the issue of MuPDF having trouble rendering SVG
+;;; Denote 20240128T082505
+(add-hook 'doc-view-mode-hook (lambda ()
+                                (setq doc-view-mupdf-use-svg nil)))
 
+
+;; INFOPATH: make sure envvars.zsh points to /usr/local and /opt/local
 (add-to-list 'Info-directory-list "~/.local/share/share/info/")
-(add-to-list 'Info-directory-list "~/.local/share/denote/denote")
-;;;(add-to-list 'Info-directory-list "/opt/local/share/info/")
+(add-to-list 'Info-directory-list "~/.local/share/emacs/denote")
+(add-to-list 'Info-directory-list "~/.local/share/common-lisp/share/info")
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;;; Local Utilities
+(add-to-list 'load-path "~/.local/share/emacs/utils")
+(require 'template-funcs)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Common Lisp
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(setq inferior-lisp-program "sbcl")
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Org-Mode
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (require 'ox-texinfo)
 ;; (require 'ob-http)
 
-(setq org-agenda-include-diary t)
-(setq org-attach-method 'lns)
+(setq org-agenda-include-diary t
+      org-attach-preferred-new-method 'dir
+      org-attach-method 'lns
+      org-clock-into-drawer "WORKTIME"
+      org-log-note-clock-out t
+      org-log-states-order-reversed nil
+      org-time-stamp-rounding-minutes '(6 6)
+      org-clock-persist 'history)
+
+(org-clock-persistence-insinuate)
+
 
 (add-hook 'org-mode-hook 'org-indent-mode)
 (add-hook 'org-mode-hook
@@ -83,10 +118,10 @@
         (sequence "TASK(T!)" "|" "COMPLETED(C!)")))
 
 (setq org-agenda-files
-      '("~/.local/share/notes/ccvlp2/cases"
-        "~/.local/share/notes/personal"
-        "~/.local/share/notes/law"
-        "~/.local/share/notes/legal"))
+      '("~/.local/share/notes/ccvlp2/"
+        "~/.local/share/notes/personal/"
+        "~/.local/share/notes/law/"
+        "~/.local/share/notes/legal/"))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -171,8 +206,15 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Denote
+
+;; Do not use the Packages version; update this using `git-pull' regularly
+(add-to-list 'load-path "~/.local/share/emacs/denote")
+
+;; Denote's default directory
 (setq denote-directory "/Users/minilolh/.local/share/notes")
-(setq denote-dired-directories
+
+;; Denote Dired Mode setup
+(setq denote-dired-directories ; use denote-dired-mode in these directories
       (list
        denote-directory
        (expand-file-name "~/.local/share/notes/ccvlp2")
@@ -182,17 +224,23 @@
        (expand-file-name "~/.local/share/notes/ccvlp2/cases/closed")
        (expand-file-name "~/.local/share/notes/legal")
        (expand-file-name "~/.local/share/notes/personal")))
-(setq denote-dired-directories-include-subdirectories t)
+(setq denote-dired-directories-include-subdirectories t) ; see 'denote-dired-mode-in-directories'
 
-(diredfl-global-mode -1) ; dired-mode does not work with diredfl
-(add-hook 'dired-mode-hook #'denote-dired-mode-in-directories)
+(add-hook 'dired-mode-hook
+          (lambda ()
+            (progn
+              (when (diredfl-mode)
+                (diredfl-mode -1)) ; dired-mode does not work with diredfl
+              (denote-dired-mode-in-directories) ; fontify the directory file names
+              (custom-set-faces '(denote-faces-title ((t (:foreground "green3")))))
+              (custom-set-faces '(denote-faces-date ((t (:foreground "yellow"))))))))
+
 
 (setq denote-prompts '(title keywords signature))
 (setq denote-date-prompt-use-org-read-date t)
 
-(require 'denote-org-dblock)
+(require 'denote-org-extras)
 (require 'denote-silo-extras)
-(require 'template-funcs)
 
 (let ((map global-map))
   (define-key map (kbd "C-c n n") #'denote)
@@ -280,6 +328,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Custom functions
+
 (defun init-emacs ()
   "Open the init.el file in a new frame for editing."
   (interactive)
