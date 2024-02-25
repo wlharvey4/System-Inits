@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-01-30 03:56:37 minilolh>
+;;; Time-stamp: <2024-02-24 21:58:37 minilolh>
 ;;; Commentary:
 ;;; This code covers the following local configurations:
 ;;; 0. purcell/emacs.d => ~/.local/share/emacs/purcell-emacs.d/
@@ -49,7 +49,7 @@
 
 ;; Set a Diary file
 ;; Place diary into notes/ccvlp2 so it can saved in a secret repo
-(setq diary-file "~/.local/share/notes/ccvlp2/diary")
+(setq diary-file "~/.local/share/notes/ccvlp/diary")
 (diary)
 
 
@@ -76,12 +76,17 @@
 ;;; Local Utilities
 (add-to-list 'load-path "~/.local/share/emacs/utils")
 (require 'template-funcs)
+(require 'extract)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Common Lisp
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(setq inferior-lisp-program "sbcl")
+;;;(setq inferior-lisp-program "sbcl")
+
+(setq sly-lisp-implementations
+      '((sbcl ("~/.local/share/bin/sbcl"))
+        (ccl ("~/.local/share/bin/ccl"))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -94,9 +99,11 @@
 (setq org-agenda-include-diary t
       org-attach-preferred-new-method 'dir
       org-attach-method 'lns
+      org-attach-store-link-p 'attached
       org-clock-into-drawer "WORKTIME"
       org-log-note-clock-out t
       org-log-states-order-reversed nil
+      org-startup-folded t
       org-time-stamp-rounding-minutes '(6 6)
       org-clock-persist 'history)
 
@@ -111,18 +118,21 @@
 
 (setq org-todo-keywords
       '((sequence "TODO(t@)" "NEXT(n)" "WAIT(w@)" "HOLD(h@)" "|" "DONE(d!)" "RECEIVED(!)" "CANCELLED(c!)" )
-        (sequence "DRAFT(D@)" "DRAFTING(!)" "|" "DRAFTED(!)")
+        (sequence "DRAFT(D@)" "DELEGATE(@)" "|" "DRAFTED(!)" "DELEGATED(!)")
         (sequence "LETTER(l@)" "|" "WROTE(!)")
         (sequence "REQUEST(r)" "|" "REQUESTED(R!)")
-        (sequence "DELEGATE(@)" "CHECK(@)" "|" "DELEGATED(!)")
+        (sequence  "HEARING(H!)" "|" "ATTENDED(A@")
         (sequence "TASK(T!)" "|" "COMPLETED(C!)")))
 
 (setq org-agenda-files
-      '("~/.local/share/notes/ccvlp2/"
-        "~/.local/share/notes/personal/"
-        "~/.local/share/notes/law/"
-        "~/.local/share/notes/legal/"))
+      '("~/.local/share/notes/"
+        "~/.local/share/notes/ccvlp/"
+        "~/.local/share/notes/ccvlp/cases/"
+        "~/.local/share/notes/ccvlp/law/"
+        "~/.local/share/notes/legal/"
+        "~/.local/share/notes/personal/"))
 
+(setq org-default-notes-file "~/.local/share/notes/captured.org")
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; mu/mu4e - Mail User Agent
@@ -208,23 +218,45 @@
 ;;; Denote
 
 ;; Do not use the Packages version; update this using `git-pull' regularly
-(add-to-list 'load-path "~/.local/share/emacs/denote")
+(add-to-list 'load-path (expand-file-name "~/.local/share/emacs/denote"))
+
+(require 'denote-org-extras)
+(require 'denote-silo-extras)
 
 ;; Denote's default directory
-(setq denote-directory "/Users/minilolh/.local/share/notes")
+(setq denote-directory (expand-file-name "~/.local/share/notes")
+      denote-prompts '(title keywords signature subdirectory template)
+      denote-date-prompt-use-org-read-date t
+      ;; see 'denote-dired-mode-in-directories'
+      denote-dired-directories-include-subdirectories t)
 
 ;; Denote Dired Mode setup
 (setq denote-dired-directories ; use denote-dired-mode in these directories
       (list
        denote-directory
-       (expand-file-name "~/.local/share/notes/ccvlp2")
-       (expand-file-name "~/.local/share/notes/ccvlp2/cases")
-       (expand-file-name "~/.local/share/notes/ccvlp2/cases/clients")
-       (expand-file-name "~/.local/share/notes/ccvlp2/cases/attorneys")
-       (expand-file-name "~/.local/share/notes/ccvlp2/cases/closed")
+       (expand-file-name "~/.local/share/notes/ccvlp")
+       (expand-file-name "~/.local/share/notes/ccvlp/cases")
+       (expand-file-name "~/.local/share/notes/ccvlp/cases/closed")
+       (expand-file-name "~/.local/share/notes/ccvlp/clients")
+       (expand-file-name "~/.local/share/notes/ccvlp/attorneys")
+       (expand-file-name "~/.local/share/notes/ccvlp/law")
        (expand-file-name "~/.local/share/notes/legal")
        (expand-file-name "~/.local/share/notes/personal")))
-(setq denote-dired-directories-include-subdirectories t) ; see 'denote-dired-mode-in-directories'
+
+(setq denote-silo-extras-directories
+      '("~/.local/share/notes/ccvlp"
+        "~/.local/share/notes/ccvlp/cases"
+        "~/.local/share/notes/ccvlp/cases/closed"
+        "~/.local/share/notes/ccvlp/clients"
+        "~/.local/share/notes/ccvlp/law"
+        "~/.local/share/notes/legal"
+        "~/.local/share/notes/personal"))
+
+(setq denote-templates
+      `((blank . ,(blank))
+        (tinyurl . ,(tinyurl))
+        (client . ,(newclient))
+        (newcase . ,(newcase))))
 
 (add-hook 'dired-mode-hook
           (lambda ()
@@ -234,13 +266,6 @@
               (denote-dired-mode-in-directories) ; fontify the directory file names
               (custom-set-faces '(denote-faces-title ((t (:foreground "green3")))))
               (custom-set-faces '(denote-faces-date ((t (:foreground "yellow"))))))))
-
-
-(setq denote-prompts '(title keywords signature))
-(setq denote-date-prompt-use-org-read-date t)
-
-(require 'denote-org-extras)
-(require 'denote-silo-extras)
 
 (let ((map global-map))
   (define-key map (kbd "C-c n n") #'denote)
@@ -266,6 +291,7 @@
   (define-key map (kbd "C-c n R") #'denote-rename-file-using-front-matter)
   (define-key map (kbd "C-c n l") #'denote-link-after-creating)
   (define-key map (kbd "C-c n L") #'denote-link-or-create)
+  ;; Denote Extras
   (define-key map (kbd "C-c n C") #'denote-silo-extras-create-note) ; Create
   (define-key map (kbd "C-c n O") #'denote-silo-extras-open-or-create) ; Open-or-Create
   (define-key map (kbd "C-c n S") #'denote-silo-extras-select-silo-then-command)) ; Select-then-Command
@@ -276,15 +302,6 @@
   (define-key map (kbd "C-c C-d C-r") #'denote-dired-rename-files)
   (define-key map (kbd "C-c C-d C-k") #'denote-dired-rename-marked-files-with-keywords)
   (define-key map (kbd "C-c C-d C-R") #'denote-dired-rename-marked-files-using-front-matter))
-
-(setq denote-silo-extras-directories
-      '("~/.local/share/notes/ccvlp2"
-        "~/.local/share/notes/ccvlp2/cases"
-        "~/.local/share/notes/ccvlp2/cases/clients"
-        "~/.local/share/notes/ccvlp2/closed"
-        "~/.local/share/notes/law"
-        "~/.local/share/notes/legal"
-        "~/.local/share/notes/personal"))
 
 ;; denote-silo-extras-create-note  :: prompts  for  a directory  among
 ;; denote-silo-extras-directories  and runs  the  denote command  from
@@ -307,17 +324,12 @@
 ;;         (slot . 99)
 ;;         (window-width . 0.3)))
 
-(setq denote-templates
-      `((tinyurl . ,(tinyurl))
-        (client . ,(newclient))
-        (newcase . ,(newcase))))
-
 
 ;;; Sample org-capture
 (with-eval-after-load 'org-capture
   (setq denote-org-capture-specifiers "%l\n%i\n%?")
   (add-to-list 'org-capture-templates
-               '("n" "New note (with denote.el)" plain
+               '("N" "New note (with denote.el)" plain
                  (file denote-last-path)
                  #'denote-org-capture
                  :no-save t
@@ -333,6 +345,20 @@
   "Open the init.el file in a new frame for editing."
   (interactive)
   (find-file "~/.config/emacs/lisp/init-local.el"))
+
+(keymap-global-set "C-c _" #'lolh/underscore)
+
+(defun lolh/underscore ()
+  "Insert an underscore beneath a line of text.
+
+  Point must be in the line beneath which an underscore will be added."
+
+  (interactive)
+
+  (let ((line-len (- (pos-eol) (pos-bol))))
+    (newline 1)
+    (insert-char ?- line-len)
+    (newline 1)))
 
 
 (provide 'init-local)
