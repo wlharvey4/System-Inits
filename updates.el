@@ -1,5 +1,5 @@
 ;;; updates.el -- Code to Update init files
-;;; Time-stamp: <2024-01-30 02:54:27 minilolh>
+;;; Time-stamp: <2024-02-25 11:38:24 minilolh>
 
 ;;; Commentary:
 ;;  Notes on how to modify purcell-emacs.d for my local machines
@@ -24,6 +24,6 @@
                 (setenv "GUISERVER" "RUNNING")))))
 
 ;;; init-local.el
-;; symlink into purcell-emacs.d/lisp
+;; should be symlinked into purcell-emacs.d/lisp
 
 ;;; end updated.el

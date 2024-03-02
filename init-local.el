@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-02-24 21:58:37 minilolh>
+;;; Time-stamp: <2024-02-25 19:52:02 minilolh>
 ;;; Commentary:
 ;;; This code covers the following local configurations:
 ;;; 0. purcell/emacs.d => ~/.local/share/emacs/purcell-emacs.d/
@@ -33,6 +33,9 @@
 ;;;    5.1. time-stamp
 ;;;    5.2. visual-line-mode
 ;;;    5.3. dired-hide-details-mode
+;;;    5.4. bookmark-default-file => ~/.local/share/src/System-Inits/.bookmarks.el
+;;;           symlink ~/.local/share/src/System-Inits/.bookmarks.el to
+;;;           ~/.local/share/src/System-Inits/.bookmarks.el
 ;;; Appendix
 ;;; A. Maximize Screen on Opening: https://www.emacswiki.org/emacs/FullScreen
 ;;;    A.1. Emacs will start at a default frame size (small) and then expand if you maximize it
@@ -93,6 +96,7 @@
 ;;; Org-Mode
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+(require 'org-id)
 (require 'ox-texinfo)
 ;; (require 'ob-http)
 
@@ -254,9 +258,8 @@
 
 (setq denote-templates
       `((blank . ,(blank))
-        (tinyurl . ,(tinyurl))
         (client . ,(newclient))
-        (newcase . ,(newcase))))
+        (case . ,(newcase))))
 
 (add-hook 'dired-mode-hook
           (lambda ()
@@ -349,9 +352,9 @@
 (keymap-global-set "C-c _" #'lolh/underscore)
 
 (defun lolh/underscore ()
-  "Insert an underscore beneath a line of text.
+  "Insert a line of underscores (actually dashes) beneath a line of text.
 
-  Point must be in the line beneath which an underscore will be added."
+  Point must be in the line beneath which the underscores will be added."
 
   (interactive)
 
