@@ -171,8 +171,11 @@
 (add-hook 'after-init-hook
           (lambda ()
             (require 'server)
-            (unless (server-running-p)
-              (server-start))))
+            (when (display-graphic-p)
+              (unless (server-running-p)
+                (and
+                 (server-start)
+                 (setenv "GUISERVER_STARTED" "YES"))))))
 
 ;; Variables configured via the interactive 'customize' interface
 (when (file-exists-p custom-file)

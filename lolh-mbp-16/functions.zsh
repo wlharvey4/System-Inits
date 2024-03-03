@@ -1,194 +1,214 @@
-# -*- mode:sh; -*-
-printf "  ${GREEN}sourcing functions.zsh...${CLEAR}"
+# ~/.oh-my-zsh/custom/functions.zsh -*- mode:sh; -*-
+# Time-stamp: <2024-01-18 12:21:50 minilolh>
 
-# Time-stamp: <2022-01-30 11:44:00 lolh-mbp-16>
-
-### Function to run rsync between Documents/Data/ and
-### /Volumes/Vol_K2/Documents/Data
-rsnc () {
-    unset n;
-    if (( $# == 0));
-      then echo usage rsnc [get \| push];
-    elif [[ $1 == get ]];
-      then
-        if [[ (( $# == 2 )) ]] && [[ $2 == -n ]]; then n='-n'; fi;
-        echo will get $n;
-        rsync -azv --delete --exclude=.DS_Store \
-	      /Volumes/Vol_K2/Documents/Data/ ~/Documents/Data $n;
-    elif [[ $1 == put ]];
-      then
-        if [[ (( $# == 2 )) ]] && [[ $2 == -n ]]; then n='-n'; fi;
-        echo will put $n;
-        rsync -azv --delete --exclude=.DS_Store \
-	      ~/Documents/Data/ /Volumes/Vol_K2/Documents/Data $n;
-    else echo rsnc unknown command;
-    fi;
-}
-
-### Emacs Servers
-
-## Guiserver
-guiserver () {
-    # GUISERVER dependencies
-    if [[ -z $EMACS_APP ]]; then
-	printf "${RED}envvar \$EMACS_APP is empty.${CLEAR}\n"
-	return -1
-    fi
-
-    # GUISERVER status `-s': returns TRUE if running
-    if [[ $# == 1 ]] && [[ $1 == -s ]]; then
-	return $(pgrep -qlf guiserver)
-    fi
-
-    # GUISERVER check `-c': prints message
-    if [[ $# == 1 ]] && [[ $1 == -c ]]; then
-	if $(guiserver -s); then
-	    printf "${CYAN}GUISERVER is running\n${CLEAR}"
-	else
-	    printf "${CYAN}GUISERVER is not running\n${CLEAR}"
-	fi
-	return 0
-    fi
-
-    # GUISERVER kill `-k': kills GUISERVER if running
-    if [[ $# == 1 ]] && [[ $1 =~ k ]]; then
-	if $(guiserver -s); then
-	    printf "\n${CYAN}GUISERVER...\n"
-	    pkill -lf guiserver
-	    printf "killed.\n${CLEAR}"
-	fi
-	return
-    fi
-
-    if [[ $# -gt 0 ]]; then
-	echo NOOP
-	return
-    fi
-
-    # GUISERVER start
-    if ! $(guiserver -s); then
-	printf "${CYAN}GUISERVER...\n$"
-
-	$EMACS_APP -g 164x65+0+0 \
-		   --eval='(progn
-	                 (require (quote server))
-			 (setq server-name "guiserver")
-			 (server-start))' &
-
-	printf "${CYAN}started.\n${CLEAR}"
-    fi
-    return
-}
-
-## Termserver
-termserver () {
-    # TERMSERVER dependencies
-    if [[ -z $EMACS_TERM ]]; then
-	printf "${RED}envvar \$EMACS is empty.${CLEAR}\n"
-	return -1
-    fi
-
-    # TERMSERVER status `-s': returns TRUE if running
-    if [[ $# == 1 ]] && [[ $1 == -s ]]; then
-	return $(pgrep -qlf termserver)
-    fi
-
-    # TERMSERVER check `-c': prints message
-    if [[ $# == 1 ]] && [[ $1 == -c ]]; then
-	if $(termserver -s); then
-	    printf "${BLUE}TERMSERVER is running\n${CLEAR}"
-	else
-	    printf "${BLUE}TERMSERVER is not running\n${CLEAR}"
-	fi
-	return 0
-    fi
-
-    # TERMSERVER kill `-k': kills TERMSERVER if running
-    if [[ $# == 1 ]] && [[ $1 =~ k ]]; then
-	if $(termserver -s); then
-	    printf "\n${BLUE}TERMSERVER...\n"
-	    pkill -lf termserver
-	    printf "killed.\n${CLEAR}"
-	fi
-	return
-    fi
-
-    if [[ $# -gt 0 ]]; then
-	echo NOOP
-	return
-    fi
-    
-    # TERMSERVER start
-    if ! $(termserver -s); then
-	printf "${BLUE}TERMSERVER...\n"
-
-	$EMACS_TERM --daemon=termserver
-	printf "started.\n${CLEAR}"
-    fi
-    return
-}
-
-## Both servers
-servers () {
-    # SERVERS check: `-c'
-    if [[ $# == 1 ]] && [[ $1 == -c ]]; then
-	guiserver -c
-	termserver -c
-	return 0
-    fi
-
-    # SERVERS kill: `-k' | `-t' to also kill tmux-server
-    if [[ $# == 1 ]] && [[ $1 =~ k ]]; then
-	guiserver -k
-	termserver -k
-	if [[ $1 =~ t ]]; then
-	    printf "TMUX-SERVER killing..."
-	    tmux kill-server
-	fi
-	return
-    fi
-
-    # SERVERS start
-    guiserver
+startup () {
     termserver
-    if [[ -z $TMUX ]] && [[ $1 =~ t ]]; then
-	tmux a -t Home
+    guiserver
+    tmux
+ }
+
+server-status () {
+    unset ss
+    ss=$(emacsclient -s $1 -e "(car (member \"$1\" (directory-files server-socket-dir)))" 2>/dev/null)
+    printf "%s" ${ss:="nil"}
+}
+
+server-start () {
+    while getopts ":s:t:" name
+    do
+        case $name in ("s") ss=$(server-status $OPTARG);
+                            if [[ $ss != \"$OPTARG\" ]]
+                            then
+                                emacs&
+                            fi
+                            printf "%s is running.\n" $OPTARG;
+                            ;;
+                      ("t") printf "opt: %s  arg: %s\n" $name $OPTARG; echo server termserver;
+                            ss=$(server-status $OPTARG);
+                            if [[ $ss != \"$OPTARG\" ]]
+                            then
+                                emacs -nw --daemon=$OPTARG
+                            fi
+                            printf "%s is running.\n" $OPTARG;
+                            ;;
+                      (":") printf "opt: %s  arg: %s\n" $name $OPTARG; echo missing argument ;;
+                      ("?") printf "opt: %s  arg: %s\n" $name $OPTARG; echo wrong option ;;
+        esac
+    done
+    echo Done
+}
+
+guiserver () {
+    # if emacsclient -qs guiserver --eval '(prin1 "The guiserver is running.")' 2>/dev/null
+    if [[ ${GUISERVER} = "RUNNING" ]]; then
+        print "The guiserver is running."
+    else
+        # emacs should be in $PATH
+	emacs&
+       	print "Started the guiserver."
+        GUISERVER="RUNNING"
     fi
-    return
+}
 
-    if [[ $# -gt 0 ]]; then
-	echo NOOP
-	return
+guiserver-stop () {
+    if [[ ${GUISERVER} = "RUNNING" ]]; then
+        emacsclient -s guiserver -e '(kill-emacs)'
+        GUISERVER="STOPPED"
+        print "Killed the guiserver."
+    else
+        :
     fi
 }
 
-switchdesktop () {
-       typeset -A desktophash
-    desktophash[0]=29
-    desktophash[1]=18
-    desktophash[2]=19
-    desktophash[3]=20
-    desktophash[4]=21
-    desktophash[5]=23
-    desktophash[6]=22
-    desktophash[7]=26
-    desktophash[8]=28
-    desktophash[9]=25
-    desktopkey=${desktophash[$1]}
-    osascript -e "tell application \"System Events\" to key code \
-$desktopkey using control down"
+termserver () {
+    # if emacsclient -qs termserver --eval '(prin1 "The termserver is running.")' 2>/dev/null 
+    if [[ ${TERMSERVER} = "RUNNING" ]]; then
+        print "The termserver is running."
+    else
+        # emacs should be in $PATH
+	emacs -nw --no-desktop --daemon=termserver
+        print "Started the termserver."
+        TERMSERVER="RUNNING"
+    fi
 }
 
-ecg () {
-    ${EMACS_APP_CLIENT} -s guiserver "$@" &
+termserver-stop () {
+    if [[ $TERMSERVER="RUNNING" ]]; then
+        emacsclient -s termserver -e '(kill-emacs)'
+        TERMSERVER="STOPPED"
+        print "Killed the termserver."
+    else
+        :
+    fi
 }
 
-ect () {
-    ${EMACS_TERM_CLIENT} -ns termserver "$@"
+emacs-servers-stop () {
+    guiserver-stop
+    termserver-stop
 }
 
-init-emacs () {
-    ect --batch --exec '(init-emacs)'
+# This shutdown function kills everything completely no-questions-asked dead.
+shutdown () {
+    emacs-servers-stop
+    tmux kill-server
+    exec pkill -lf iTerm
 }
 
-printf "  ${GREEN}done sourcing functions.zsh${CLEAR}\n"
+emacs-servers-help () {
+    print "guiserver
+termserver
+guiserver-stop
+termserver-stop
+emacs-servers-stop
+startup
+shutdown
+ect
+ecg"
+}
+
+alias ect='emacsclient -s termserver'
+alias ecg='emacsclient -s guiserver'
+alias mkd='mkdocs serve'
+alias mkdkill='pkill -lf mkdocs\ serve'
+
+zbkp () {
+
+    USAGE="zbkp -x # | -c # | -u #"
+    OPTARG=
+    # printf "Number of positional parameters: %d\n" $#
+
+    # SYNTAX: getopts optstring name
+    # optstring syntax: ":c:u:x:"
+    # If a letter is followed by a ‘:’, that option requires an argument
+    # A leading ‘:’ in optstring causes getopts to store the letter of any invalid option in OPTARG
+    # and to set 'name' to ‘?’ for an unknown option
+    # and to ‘:’ when a required argument is missing
+    # 'name' (e.g., opt): Each time it is invoked, getopts places the option letter it finds in the shell parameter name
+    # OPTIND: The index of the next arg is stored in OPTIND
+    # OPTARG: The option argument, if any, is stored in OPTARG
+
+    # c :> tar -cf tarfile files
+    # u :> tar -uf tarfile files
+    # x :> tar -xf tarfile -C dir
+
+    getopts ":c:u:x:" opt
+#   printf "arg: %s\n" $opt
+#   printf "OPTIND: %d\n" $OPTIND
+#   printf "OPTARG: %s\n" $OPTARG
+
+    # First, check for less than 2 positional arguments.
+    # Second check for a missing required option argument.
+    # opt will be set to ':' for a missing required argument.
+    # Third, check for an invalid option.  OPTARG will have an invalid letter stored in it.
+    # opt will be set to '?' for an unknown option
+    # Then execute the first option and argument combination, ignoring all others.
+
+    # Check for less than 2 options; exit with error and usage statement.
+    if [[ $# -lt 2 ]]; then
+        printf "ERROR: Usage: %s\n" $USAGE
+        return -1
+    fi
+
+    # Check for invalid option, e.g., something other than c, u, x
+    if [[ $opt == "?" ]]; then
+        printf "ERROR: Unknown option: %s\n" $OPTARG
+        printf "Usage: %s\n" $USAGE
+        return -1
+    fi
+
+    # Check for a missing required argument
+    # Because the number of positional arguments is checked, this will never trigger.
+    if [[ $opt == ":" ]]; then
+        printf "ERROR: Missing a required argument, such as '13'"
+        printf "Usage: %s\n" $USAGE
+        return -1
+    fi
+
+    case $opt in
+        c) printf "executing tar -c %s\n" $OPTARG ;;
+        u) printf "executing tar -u %s\n" $OPTARG ;;
+        x) printf "executing tar -x %s\n" $OPTARG ;;
+        *) printf "Should never get here." ;;
+    esac
+}
+
+# 2023-12-04
+ali () {
+    # alisma -a $srcfile $destfile
+    # Creates an alias of $srcfile (from Goodgle Drive) to $destfile (in local file).
+    # Due to a limitation with iTerm not being able to open the Google Drive,
+    # Terminal must be opened from a Finder window opened at the source,
+    # such as "23-2-03006-06 Case Name", and then this command, `ali` is run
+    # from that Terminal window.
+    # TODO: This can be expanded to copy all files in the directory structure.
+
+    SOURCE=$(basename $PWD) # the case name, e.g. 23-2-03006-06 Plaintiff v. Defendant
+    FULL_SOURCE="$PWD"/Court\ File # The directory holding the pleadings
+    FULL_DEST="$CCVLP_DATA"/"$SOURCE"/Court\ File # The directory for the new aliases
+    #print "FULL_SOURCE is $FULL_SOURCE"
+    #print "FULL_DEST is $FULL_DEST"
+
+    mkdir -vp "${FULL_DEST}"
+
+    for srcfile in ${FULL_SOURCE}/*.pdf; do
+        destfile="${FULL_DEST}/$(basename $srcfile)"
+        #print "$srcfile"
+        #print "${destfile}\n"
+        if ! [[ -f $destfile ]]; then
+            #print "Creating ${destfile}."
+            alisma -a "${srcfile}" "${destfile}"
+        #else
+            #print "${destfile} already exists; skipping."
+        fi
+    done
+}
+
+to () {
+
+    cd "$@"
+}
+
+alias toccvlp='to $CCVLP'
+alias tolcnotes='to $LCNOTES'
+alias tocases='to $CASES'
+alias tolsnotes='to $LSNOTES'

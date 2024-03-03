@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-01-30 03:56:37 minilolh>
+;;; Time-stamp: <2024-03-02 19:18:30 lolh-mbp-16>
 ;;; Commentary:
 ;;; This code covers the following local configurations:
 ;;; 0. purcell/emacs.d => ~/.local/share/emacs/purcell-emacs.d/
@@ -110,12 +110,12 @@
                         'org-time-stamp-inactive)))
 
 (setq org-todo-keywords
-      '((sequence "TODO(t@)" "NEXT(n)" "WAIT(w@)" "HOLD(h@)" "|" "DONE(d!)" "RECEIVED(!)" "CANCELLED(c!)" )
+      '((sequence "TODO(t@)" "NEXT(n)" "WAITING(w@)" "HOLD(h@)" "|" "DONE(d!)" "RECEIVED(!)" "CANCELLED(c!)" )
         (sequence "DRAFT(D@)" "DRAFTING(!)" "|" "DRAFTED(!)")
         (sequence "LETTER(l@)" "|" "WROTE(!)")
         (sequence "REQUEST(r)" "|" "REQUESTED(R!)")
         (sequence "DELEGATE(@)" "CHECK(@)" "|" "DELEGATED(!)")
-        (sequence "TASK(T!)" "|" "COMPLETED(C!)")))
+        (sequence "TASKS(T!)" "|" "COMPLETED(C!)")))
 
 (setq org-agenda-files
       '("~/.local/share/notes/ccvlp2/"
@@ -208,10 +208,10 @@
 ;;; Denote
 
 ;; Do not use the Packages version; update this using `git-pull' regularly
-(add-to-list 'load-path "~/.local/share/emacs/denote")
+(add-to-list 'load-path (expand-file-name "~/.local/share/emacs/denote"))
 
 ;; Denote's default directory
-(setq denote-directory "/Users/minilolh/.local/share/notes")
+(setq denote-directory (expand-file-name "~/.local/share/notes"))
 
 ;; Denote Dired Mode setup
 (setq denote-dired-directories ; use denote-dired-mode in these directories
@@ -222,6 +222,7 @@
        (expand-file-name "~/.local/share/notes/ccvlp2/cases/clients")
        (expand-file-name "~/.local/share/notes/ccvlp2/cases/attorneys")
        (expand-file-name "~/.local/share/notes/ccvlp2/cases/closed")
+       (expand-file-name "~/.local/share/notes/law")
        (expand-file-name "~/.local/share/notes/legal")
        (expand-file-name "~/.local/share/notes/personal")))
 (setq denote-dired-directories-include-subdirectories t) ; see 'denote-dired-mode-in-directories'
@@ -236,7 +237,7 @@
               (custom-set-faces '(denote-faces-date ((t (:foreground "yellow"))))))))
 
 
-(setq denote-prompts '(title keywords signature))
+(setq denote-prompts '(title keywords date signature))
 (setq denote-date-prompt-use-org-read-date t)
 
 (require 'denote-org-extras)
@@ -308,7 +309,7 @@
 ;;         (window-width . 0.3)))
 
 (setq denote-templates
-      `((tinyurl . ,(tinyurl))
+      `((blank . ,(blank))
         (client . ,(newclient))
         (newcase . ,(newcase))))
 

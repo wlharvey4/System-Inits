@@ -1,115 +1,46 @@
-# -*- mode: sh; fill-column:79; -*-
-# ~/.oh-my-zsh/custom/envars.zsh
+# ~/.oh-my-zsh/custom/envvars.zsh -*- mode:sh; -*-
+# Time-stamp: <2024-02-24 19:47:30 lolh-mbp-16>
 
-# Time-stamp: <2023-03-03 08:05:12 lolh-mbp-16>
+export INFOPATH=/opt/local/share/info:/usr/local/share/info:
 
-printf "  ${CYAN}sourcing envars.zsh...${CLEAR}\n"
+export CLOUDDOCS=$HOME/Library/Mobile\ Documents/com\~apple\~CloudDocs
 
-setopt RE_MATCH_PCRE
+# These point to the same place; first one is shorter, so use it??
+export GOOGLE_DRIVE=$HOME/Google\ Drive/My\ Drive
+export LH_GOOGLE_DRIVE=$HOME/Library/CloudStorage/GoogleDrive-lincoln@ccvlop.org/My\ Drive
 
-export INFOPATH=~/.local/share/common-lisp/implementations/share/info:/opt/local/share/info:/usr/local/share/info:
+export GOOGLE_DRIVE_2022=${GOOGLE_DRIVE}/2022\ UD\ Case\ Prep.gdrive/Lincoln\ Harvey
+export GOOGLE_DRIVE_2023=${GOOGLE_DRIVE}/2023\ UD\ Case\ Prep.gdrive/Lincoln\ Harvey
+export GOOGLE_DRIVE_2024=${GOOGLE_DRIVE}/2024\ UD\ Case\ Prep/Lincoln\ Harvey
 
-export COMP=$(hostname -s)
-printf "\t${GREEN}COMP = ${COMP}${CLEAR}\n"
+export LH_GOOGLE_DRIVE_2022=${LH_GOOGLE_DRIVE}/2022\ UD\ Case\ Prep.gdrive/Lincoln\ Harvey
+export LH_GOOGLE_DRIVE_2023=${LH_GOOGLE_DRIVE}/2023\ UD\ Case\ Prep.gdrive/Lincoln\ Harvey
+export LH_GOOGLE_DRIVE_2024=${LH_GOOGLE_DRIVE}/2024\ UD\ Case\ Prep/Lincoln\ Harvey
 
-export XDG_CONFIG_HOME=~/.config
+export ANT_HOME=/Users/minilolh/.local/share/java/ant/apache-ant-1.10.13
+export JAVA_HOME=/Library/Java/JavaVirtualMachines/temurin-17.jdk/Contents/Home
 
-export DLDS=${HOME}/Downloads
-export DOCS=${HOME}/Documents
-export DATA=${DOCS}/Data
+# WORK
+export WORK=$HOME/.local/work
+export WORKFIN=${WORK}/workfin
 
-export LO=${DATA}/LO
-export CASES=${LO}/CASES
-export STATES=${LO}/STATES
-export WA=${STATES}/WA
+# LEDGER/HLEDGER
+export LEDGER=${WORKFIN}/ledger
+export LEDGER_FILE=${LEDGER}/zero.ledger
+export HLEDGER=${WORKFIN}/hledger
+#export LEDGER_FILE=${HLEDGER}/hledger.journal
 
-export USR=/usr/local
-export OPT=/opt/local
-export DEV=${USR}/dev
-export PROGRAMS=${DEV}/programs
-export PROGRAMMING=${DEV}/programming
-
-export GOPATH=${PROGRAMS}/go
-
-export SYNC_ORG_TEMPLATE=${DEV}/Templates/Org/Template.org
-export AWS_S3_BUCKET=pinecone-forest.com
-
-export EMACS_APP_PREFIX=$(find ~/Applications -name Emacs.app -maxdepth 3)
-export EMACS_MACOS=${EMACS_APP_PREFIX}/Contents/MacOS
-export EMACS_APP=${EMACS_MACOS}/Emacs
-export EMACS_APP_BIN=${EMACS_MACOS}/bin
-export EMACS_APP_CLIENT=${EMACS_APP_BIN}/emacsclient
-
-export EMACS_TERM=emacs
-export EMACS_TERM_CLIENT=emacsclient
-
-# export EMACS_HOME=$(
-#     ( [[ -f $HOME/.emacs ]] || [[ -f $HOME/.emacs.el ]] ) && { echo $HOME; return; } ||
-#     [[ -d $HOME/.emacs.d ]] && { echo $HOME/.emacs.d; return; } ||
-#     [[ -d $HOME/.config/emacs ]] && { echo $HOME/.config/emacs; return; } ||
-#     echo error
-#)
-export EMACS_INIT_DIR=$($EMACS_TERM -Q --batch --eval '
-       (princ (directory-file-name (expand-file-name user-emacs-directory)))')
-
-export EMACS_INIT_FILE=$(
-    case $EMACS_INIT_DIR in
-
-	($HOME)
-	    [[ -f $EMACS_INIT_DIR/.emacs ]]    && { echo ".emacs"; return; }    ||
-	    [[ -f $EMACS_INIT_DIR/.emacs.el ]] && { echo ".emacs.el"; return; } ||
-		    echo "ERROR: no .emacs"                                 ;;
-
-	($HOME/.emacs.d)
-	    [[ -f $EMACS_INIT_DIR/init ]]      && { echo "init"; return; }      ||
-	    [[ -f $EMACS_INIT_DIR/init.el ]]   && { echo "init.el"; return; }   ||
-	    [[ -f $EMACS_INIT_DIR/emacs ]]     && { echo "emacs"; return; }     ||
-	    [[ -f $EMACS_INIT_DIR/emacs.el ]]  && { echo "emacs.el"; return; }  ||
-		   echo "ERROR: no .emacs"                                  ;;
-
-        ($HOME/.config/emacs)
-	    [[ -f $EMACS_INIT_DIR/init ]]      && { echo "init"; return; }      ||
-	    [[ -f $EMACS_INIT_DIR/init.el ]]   && { echo "init.el"; return; }   ||
-		   echo "ERROR: no init.el"                                 ;;
-
-     esac
-)
-
-export EMACS_INIT=${EMACS_INIT_DIR}/${EMACS_INIT_FILE}
-export EMACS_WIDTH=250
+#COMMON LISP
+export ROSWELL_HOME=$HOME/.local/share/common-lisp/roswell
 
 # Preferred editor for local and remote sessions
-export EDITOR=${EMACS_TERM_CLIENT}
+if [[ -n $SSH_CONNECTION ]]; then
+  export EDITOR='emacsclient -s termserver'
+else
+  export EDITOR='emacsclient -s guiserver'
+fi
 
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='$EMACS_TERM_CLIENT -a ""'
-# else
-#   export EDITOR='$EMACS_APP_CLIENT "--server=guiserver"'
-# fi
+export GUISERVER="STOPPED"
+export TERMSERVER="STOPPED"
 
-# CLOZURE COMMON LISP CCL
-export CCL_DEFAULT_DIRECTORY=$USR/ccl/ccl-1.12/ccl-1.12.1
-export CCL_KERNEL=dx86cl64
-
-# KAWA SCHEME
-export KAWA_HOME=/usr/local/kawa/kawa-3.1.1
-
-# OPENJDK
-# openjdk11 has the following notes:
-#   If you have more than one JDK installed you can make openjdk11 the default
-#   by adding the following line to your shell profile:
-#
-#export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk11/Contents/Home
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/openjdk11-temurin/Contents/Home
-
-# GIT
-export GIT_EDITOR=$EDITOR
-
-export INFOPATH="\
-/opt/local/share/info:\
-/usr/local/dev/share/info:\
-/usr/local/dev/emacsdev/share/info:\
-/usr/share/info:\
-/usr/local/share/info"
-
-printf "  ${CYAN}envars.zsh done${CLEAR}\n"
+export EMAIL="lincoln@ccvlp.org"

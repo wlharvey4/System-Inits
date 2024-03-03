@@ -1,10 +1,10 @@
 # ~/.oh-my-zsh/custom/envvars.zsh -*- mode:sh; -*-
-# Time-stamp: <2024-01-30 03:21:50 minilolh>
+# Time-stamp: <2024-01-30 04:29:30 lolh-mbp-16>
 
 export INFOPATH=/opt/local/share/info:/usr/local/share/info:
 
 export CLOUDDOCS=$HOME/Library/Mobile\ Documents/com\~apple\~CloudDocs
-export LH_GOOGLEDOCS=$HOME/Library/CloudStorage/GoogleDrive-lincoln@ccvlop.org
+export LH_GOOGLEDOCS=$HOME/Library/CloudStorage/GoogleDrive-lincoln@ccvlp.org
 export LH_MY_DRIVE=${LH_GOOGLEDOCS}/My\ Drive
 export LH_MY_DRIVE_2023=${LH_MY_DRIVE}/2023\ UD\ Case\ Prep/Lincoln\ Harvey
 export LH_MY_DRIVE_2024=${LH_MY_DRIVE}/2024\ UD\ Case\ Prep/Lincoln\ Harvey
