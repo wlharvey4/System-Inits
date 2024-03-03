@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-03-02 19:18:30 lolh-mbp-16>
+;;; Time-stamp: <2024-03-03 10:07:31 lolh-mbp-16>
 ;;; Commentary:
 ;;; This code covers the following local configurations:
 ;;; 0. purcell/emacs.d => ~/.local/share/emacs/purcell-emacs.d/
@@ -49,7 +49,7 @@
 
 ;; Set a Diary file
 ;; Place diary into notes/ccvlp2 so it can saved in a secret repo
-(setq diary-file "~/.local/share/notes/ccvlp2/diary")
+(setq diary-file "~/.local/share/emacs/diary")
 (diary)
 
 
@@ -70,12 +70,16 @@
 ;; INFOPATH: make sure envvars.zsh points to /usr/local and /opt/local
 (add-to-list 'Info-directory-list "~/.local/share/share/info/")
 (add-to-list 'Info-directory-list "~/.local/share/emacs/denote")
-(add-to-list 'Info-directory-list "~/.local/share/common-lisp/share/info")
+(add-to-list 'Info-directory-list "~/.local/share/common-lisp/implementations/share/info")
 
 
 ;;; Local Utilities
-(add-to-list 'load-path "~/.local/share/emacs/utils")
+;; Place the Emacs-Source files into ~/.local/share/emacs/source/[individual-util-subdirs]
+;; Then hardlink the Emacs-Source files into ~/.local/share/share/emacs/site-lisp one-by-one
+
 (require 'template-funcs)
+(require 'extract)
+(require 'case-utils)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
