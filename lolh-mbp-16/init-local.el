@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-03-11 09:38:19 lolh-mbp-16>
+;;; Time-stamp: <2024-03-11 09:44:03 lolh-mbp-16>
 
 ;;; Commentary:
 ;;; lolh-mbp-16/init-local.el
@@ -96,14 +96,17 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (require 'ox-texinfo)
+(require 'ox-texinfo)
 ;; (require 'ob-http)
 
 (setq org-agenda-include-diary t
       org-attach-preferred-new-method 'dir
       org-attach-method 'lns
+      org-attach-store-link-p 'attached
       org-clock-into-drawer "WORKTIME"
       org-log-note-clock-out t
       org-log-states-order-reversed nil
+      org-startup-folded t
       org-time-stamp-rounding-minutes '(6 6)
       org-clock-persist 'history)
 
