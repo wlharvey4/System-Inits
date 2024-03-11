@@ -1,6 +1,9 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-03-03 10:07:31 lolh-mbp-16>
+;;; Time-stamp: <2024-03-11 09:38:19 lolh-mbp-16>
+
 ;;; Commentary:
+;;; lolh-mbp-16/init-local.el
+
 ;;; This code covers the following local configurations:
 ;;; 0. purcell/emacs.d => ~/.local/share/emacs/purcell-emacs.d/
 ;;;    0.1. ~/.config/emacs is a symlink to purcell-emacs.d/
@@ -122,10 +125,13 @@
         (sequence "TASKS(T!)" "|" "COMPLETED(C!)")))
 
 (setq org-agenda-files
-      '("~/.local/share/notes/ccvlp2/"
-        "~/.local/share/notes/personal/"
-        "~/.local/share/notes/law/"
-        "~/.local/share/notes/legal/"))
+      '(;"~/.local/share/notes/ccvlp/"
+        "~/.local/share/notes/ccvlp/cases/"
+        ;"~/.local/share/notes/ccvlp/clients/"
+        ;"~/.local/share/notes/ccvlp/law/"
+        ;"~/.local/share/notes/personal/"
+        ;"~/.local/share/notes/legal/"
+        ))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -214,22 +220,43 @@
 ;; Do not use the Packages version; update this using `git-pull' regularly
 (add-to-list 'load-path (expand-file-name "~/.local/share/emacs/denote"))
 
+(require 'denote-org-extras)
+(require 'denote-silo-extras)
+
 ;; Denote's default directory
-(setq denote-directory (expand-file-name "~/.local/share/notes"))
+(setq denote-directory (expand-file-name "~/.local/share/notes")
+      denote-prompts '(title keywords signature subdirectory template)
+      denote-date-prompt-use-org-read-date t
+      ;; see 'denote-dired-mode-in-directories'
+      denote-dired-directories-include-subdirectories t)
 
 ;; Denote Dired Mode setup
 (setq denote-dired-directories ; use denote-dired-mode in these directories
       (list
        denote-directory
-       (expand-file-name "~/.local/share/notes/ccvlp2")
-       (expand-file-name "~/.local/share/notes/ccvlp2/cases")
-       (expand-file-name "~/.local/share/notes/ccvlp2/cases/clients")
-       (expand-file-name "~/.local/share/notes/ccvlp2/cases/attorneys")
-       (expand-file-name "~/.local/share/notes/ccvlp2/cases/closed")
+       (expand-file-name "~/.local/share/notes/ccvlp")
+       (expand-file-name "~/.local/share/notes/ccvlp/cases")
+       (expand-file-name "~/.local/share/notes/ccvlp/cases/clients")
+       (expand-file-name "~/.local/share/notes/ccvlp/cases/attorneys")
+       (expand-file-name "~/.local/share/notes/ccvlp/cases/closed")
+       (expand-file-name "~/.local/share/notes/ccvlp/attorneys")
        (expand-file-name "~/.local/share/notes/law")
        (expand-file-name "~/.local/share/notes/legal")
        (expand-file-name "~/.local/share/notes/personal")))
-(setq denote-dired-directories-include-subdirectories t) ; see 'denote-dired-mode-in-directories'
+
+(setq denote-silo-extras-directories
+      '("~/.local/share/notes/ccvlp"
+        "~/.local/share/notes/ccvlp/cases"
+        "~/.local/share/notes/ccvlp/cases/closed"
+        "~/.local/share/notes/ccvlp/clients"
+        "~/.local/share/notes/ccvlp/law"
+        "~/.local/share/notes/legal"
+        "~/.local/share/notes/personal"))
+
+(setq denote-templates
+      `((blank . ,(blank))
+        (client . ,(newclient))
+        (case . ,(newcase))))
 
 (add-hook 'dired-mode-hook
           (lambda ()
@@ -239,13 +266,6 @@
               (denote-dired-mode-in-directories) ; fontify the directory file names
               (custom-set-faces '(denote-faces-title ((t (:foreground "green3")))))
               (custom-set-faces '(denote-faces-date ((t (:foreground "yellow"))))))))
-
-
-(setq denote-prompts '(title keywords date signature))
-(setq denote-date-prompt-use-org-read-date t)
-
-(require 'denote-org-extras)
-(require 'denote-silo-extras)
 
 (let ((map global-map))
   (define-key map (kbd "C-c n n") #'denote)
@@ -271,6 +291,7 @@
   (define-key map (kbd "C-c n R") #'denote-rename-file-using-front-matter)
   (define-key map (kbd "C-c n l") #'denote-link-after-creating)
   (define-key map (kbd "C-c n L") #'denote-link-or-create)
+  ;; Denote Extras
   (define-key map (kbd "C-c n C") #'denote-silo-extras-create-note) ; Create
   (define-key map (kbd "C-c n O") #'denote-silo-extras-open-or-create) ; Open-or-Create
   (define-key map (kbd "C-c n S") #'denote-silo-extras-select-silo-then-command)) ; Select-then-Command
@@ -281,15 +302,6 @@
   (define-key map (kbd "C-c C-d C-r") #'denote-dired-rename-files)
   (define-key map (kbd "C-c C-d C-k") #'denote-dired-rename-marked-files-with-keywords)
   (define-key map (kbd "C-c C-d C-R") #'denote-dired-rename-marked-files-using-front-matter))
-
-(setq denote-silo-extras-directories
-      '("~/.local/share/notes/ccvlp2"
-        "~/.local/share/notes/ccvlp2/cases"
-        "~/.local/share/notes/ccvlp2/cases/clients"
-        "~/.local/share/notes/ccvlp2/closed"
-        "~/.local/share/notes/law"
-        "~/.local/share/notes/legal"
-        "~/.local/share/notes/personal"))
 
 ;; denote-silo-extras-create-note  :: prompts  for  a directory  among
 ;; denote-silo-extras-directories  and runs  the  denote command  from
@@ -312,17 +324,11 @@
 ;;         (slot . 99)
 ;;         (window-width . 0.3)))
 
-(setq denote-templates
-      `((blank . ,(blank))
-        (client . ,(newclient))
-        (newcase . ,(newcase))))
-
-
 ;;; Sample org-capture
 (with-eval-after-load 'org-capture
   (setq denote-org-capture-specifiers "%l\n%i\n%?")
   (add-to-list 'org-capture-templates
-               '("n" "New note (with denote.el)" plain
+               '("N" "New note (with denote.el)" plain
                  (file denote-last-path)
                  #'denote-org-capture
                  :no-save t
@@ -338,6 +344,21 @@
   "Open the init.el file in a new frame for editing."
   (interactive)
   (find-file "~/.config/emacs/lisp/init-local.el"))
+
+
+(keymap-global-set "C-c _" #'lolh/underscore)
+
+(defun lolh/underscore ()
+  "Insert a line of underscores (actually dashes) beneath a line of text.
+
+  Point must be in the line beneath which the underscores will be added."
+
+  (interactive)
+
+  (let ((line-len (- (pos-eol) (pos-bol))))
+    (newline 1)
+    (insert-char ?- line-len)
+    (newline 1)))
 
 
 (provide 'init-local)

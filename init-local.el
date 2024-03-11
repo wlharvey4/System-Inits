@@ -1,6 +1,9 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-03-02 21:47:59 lolh-mbp-16>
+;;; Time-stamp: <2024-03-11 09:38:35 lolh-mbp-16>
+
 ;;; Commentary:
+;;; init-local.el
+
 ;;; This code covers the following local configurations:
 ;;; 0. purcell/emacs.d => ~/.local/share/emacs/purcell-emacs.d/
 ;;;    0.1. ~/.config/emacs is a symlink to purcell-emacs.d/

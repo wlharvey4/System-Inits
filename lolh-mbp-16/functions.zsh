@@ -1,5 +1,5 @@
 # ~/.oh-my-zsh/custom/functions.zsh -*- mode:sh; -*-
-# Time-stamp: <2024-01-18 12:21:50 minilolh>
+# Time-stamp: <2024-03-04 16:20:32 lolh-mbp-16>
 
 startup () {
     termserver
@@ -207,6 +207,8 @@ to () {
 
     cd "$@"
 }
+
+alias pdftk='java -jar $HOME/.local/share/bin/pdftk-all.jar'
 
 alias toccvlp='to $CCVLP'
 alias tolcnotes='to $LCNOTES'
