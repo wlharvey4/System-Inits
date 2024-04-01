@@ -1,5 +1,5 @@
 # ~/.oh-my-zsh/custom/envvars.zsh -*- mode:sh; -*-
-# Time-stamp: <2024-03-02 21:38:03 lolh-mbp-16>
+# Time-stamp: <2024-04-01 12:35:49 minilolh>
 
 ## DOCUMENTATION PATHS
 export INFOPATH=/opt/local/share/info:/usr/local/share/info:
@@ -34,9 +34,9 @@ export LH_MY_CLOSED_CASES_2024=${LH_MY_CASES_2024}/00_2024_Closed_Cases
 
 # A shortcut to My Drive
 export GOOGLE_DRIVE=$HOME/Google\ Drive/My\ Drive
-export GOOGLE_DRIVE_2022=${GOOGLE_DRIVE}/2022\ UD\ Case\ Prep/Lincoln\ Harvey\ 2022
-export GOOGLE_DRIVE_2023=${GOOGLE_DRIVE}/2023\ UD\ Case\ Prep/Lincoln\ Harvey\ 2023
-export GOOGLE_DRIVE_2024=${GOOGLE_DRIVE}/2024\ UD\ Case\ Prep/Lincoln\ Harvey\ 2024
+export GOOGLE_DRIVE_2022=${GOOGLE_DRIVE}/Lincoln\ Harvey\ 2022
+export GOOGLE_DRIVE_2023=${GOOGLE_DRIVE}/Lincoln\ Harvey\ 2023
+export GOOGLE_DRIVE_2024=${GOOGLE_DRIVE}/Lincoln\ Harvey\ 2024
 
 export GD_CLOSED=00_2023_Closed_Cases
 
