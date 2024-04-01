@@ -1,5 +1,5 @@
 # ~/.oh-my-zsh/custom/functions.zsh -*- mode:sh; -*-
-# Time-stamp: <2024-03-04 16:20:32 lolh-mbp-16>
+# Time-stamp: <2024-03-12 09:37:10 lolh-mbp-16>
 
 startup () {
     termserver
@@ -206,6 +206,27 @@ ali () {
 to () {
 
     cd "$@"
+}
+
+process () {
+    cd $HOME/Downloads/
+
+    cd ~/Downloads/process/
+    new=$(ls *.pdf)
+    pdftk "$new" cat output "out.pdf" || {
+        echo "pdftk error"
+        return -1
+    }
+    rm "$new" || {
+        echo "rm error"
+        return -2
+    }
+    mv -f out.pdf "$HOME/Downloads/$new" || {
+        echo "mv error"
+        return -3
+    }
+    echo "Done"
+    return 0
 }
 
 alias pdftk='java -jar $HOME/.local/share/bin/pdftk-all.jar'
