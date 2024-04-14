@@ -1,5 +1,5 @@
 # ~/.oh-my-zsh/custom/functions.zsh -*- mode:sh; -*-
-# Time-stamp: <2024-01-18 12:21:50 minilolh>
+# Time-stamp: <2024-04-13 21:26:38 minilolh>
 
 startup () {
     termserver
@@ -9,21 +9,35 @@ startup () {
 
 server-status () {
     unset ss
-    ss=$(emacsclient -s $1 -e "(car (member \"$1\" (directory-files server-socket-dir)))" 2>/dev/null)
+    ss=$(emacsclient -s $1 -e "(print \"$1\")") 2>/dev/null
     printf "%s" ${ss:="nil"}
 }
 
 server-start () {
-    while getopts ":s:t:" name
+    while getopts ":a:s:t:" name
     do
-        case $name in ("s") ss=$(server-status $OPTARG);
-                            if [[ $ss != \"$OPTARG\" ]]
-                            then
-                                emacs&
-                            fi
-                            printf "%s is running.\n" $OPTARG;
-                            ;;
-                      ("t") printf "opt: %s  arg: %s\n" $name $OPTARG; echo server termserver;
+        case $name in
+            ("a") ss=$(server-status $OPTARG);
+                  if [[ $ss != \"$OPTARG\" ]]
+                  then
+                      ~/Applications/Emacs.app/Contents/MacOS/Emacs --eval '(require (quote server))' \
+                                                                    --eval "(setq server-name \"$OPTARG\")" \
+                                                                    --eval '(server-start)' \
+                          &
+                  fi
+                  printf "%s is running.\n" $OPTARG;
+                  ;;
+            ("s") ss=$(server-status $OPTARG);
+                  if [[ $ss != \"$OPTARG\" ]]
+                  then
+                      emacs --eval '(require (quote server))' \
+                            --eval "(setq server-name \"$OPTARG\")" \
+                            --eval '(server-start)' \
+                          &
+                  fi
+                  printf "%s is running.\n" $OPTARG;
+                  ;;
+            ("t") printf "opt: %s  arg: %s\n" $name $OPTARG; echo server termserver;
                             ss=$(server-status $OPTARG);
                             if [[ $ss != \"$OPTARG\" ]]
                             then
@@ -31,8 +45,8 @@ server-start () {
                             fi
                             printf "%s is running.\n" $OPTARG;
                             ;;
-                      (":") printf "opt: %s  arg: %s\n" $name $OPTARG; echo missing argument ;;
-                      ("?") printf "opt: %s  arg: %s\n" $name $OPTARG; echo wrong option ;;
+            (":") printf "opt: %s  arg: %s\n" $name $OPTARG; echo missing argument ;;
+            ("?") printf "opt: %s  arg: %s\n" $name $OPTARG; echo wrong option ;;
         esac
     done
     echo Done
@@ -212,3 +226,4 @@ alias toccvlp='to $CCVLP'
 alias tolcnotes='to $LCNOTES'
 alias tocases='to $CASES'
 alias tolsnotes='to $LSNOTES'
+alias pdftk-java='java -jar $HOME/.local/share/bin/pdftk-all.jar'

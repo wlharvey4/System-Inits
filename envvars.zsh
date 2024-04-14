@@ -1,5 +1,5 @@
 # ~/.oh-my-zsh/custom/envvars.zsh -*- mode:sh; -*-
-# Time-stamp: <2024-04-01 12:35:49 minilolh>
+# Time-stamp: <2024-04-11 20:19:54 minilolh>
 
 ## DOCUMENTATION PATHS
 export INFOPATH=/opt/local/share/info:/usr/local/share/info:
@@ -45,7 +45,7 @@ export GD_CLOSED=00_2023_Closed_Cases
 # Java is placed into $HOME/Library/Java/JavaVirtualMachines/temurin-<ver>/
 # JAVA_HOME is produced by running /usr/libexec/java_home
 export JAVA_HOME=$(/usr/libexec/java_home)
-export ANT_HOME=/Users/minilolh/.local/share/java/ant/apache-ant-1.10.14
+export ANT_HOME=/Users/minilolh/.local/src/java/ant/apache-ant-1.10.14
 
 # WORK
 export WORK=$HOME/.local/work

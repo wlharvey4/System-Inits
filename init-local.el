@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-03-11 09:38:35 lolh-mbp-16>
+;;; Time-stamp: <2024-04-12 14:48:59 minilolh>
 
 ;;; Commentary:
 ;;; init-local.el
@@ -7,6 +7,7 @@
 ;;; This code covers the following local configurations:
 ;;; 0. purcell/emacs.d => ~/.local/share/emacs/purcell-emacs.d/
 ;;;    0.1. ~/.config/emacs is a symlink to purcell-emacs.d/
+;;;    0.2 ~/.local/share/emacs/purcell-emacs.d/list
 ;;; 1. mu/mu4e => ~/.local/share/mu installed into /usr/local/
 ;;;    1.1. mu is installed in /usr/local/bin
 ;;;    1.2. mu4e is installed into /usr/local/share/emacs/site-lisp
@@ -36,9 +37,12 @@
 ;;;    5.1. time-stamp
 ;;;    5.2. visual-line-mode
 ;;;    5.3. dired-hide-details-mode
-;;;    5.4. bookmark-default-file => ~/.config/emacs/.bookmarks.el
-;;;           symlink ~/.local/share/src/System-Inits/.bookmarks.el to
-;;;           ~/.config/emacs/.bookmarks.el
+;;;    5.4. bookmark-default-file => ~/.local/share/emacs/site-list/bookmarks.el
+;;;           symlink ~/.local/src/System-Inits/bookmarks.el to
+;;;           ~/.local/share/emacs/site-list/bookmarks.el
+;;; 6. Local Emacs Code should be Symlinked into a Site Lisp directory
+;;;    6.1. ~/.local/src/emacs/utils/template-funcs -> ~/.local/share/emacs/site-lisp/template-funcs
+;;;    6.2, ~/.local/src/emacs/utils/extract -> ~/.local/share/emacs/site-lisp/extract
 ;;; Appendix
 ;;; A. Maximize Screen on Opening: https://www.emacswiki.org/emacs/FullScreen
 ;;;    A.1. Emacs will start at a default frame size (small) and then expand if you maximize it
@@ -46,6 +50,11 @@
 ;;;         (push '(fullscreen . maximized) default-frame-alist)
 ;;; B. Denote Faces Title
 ;;;    B.1. Customize the face denote-faces-title to be "light green"
+;;; C. Org.el function (org-store-log-note) should be changed:
+;;;    (insert-and-inherit "\n" (org-list-bullet-string "-") (pop lines))
+;;;                         ^^
+;;;    This will insert a space before a new note.  It may insert a space
+;;;    in every note, but that may not be problem.
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -53,11 +62,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
-;; Set a Diary file
+;; Set diary and bookmark files
 ;; Place diary into notes/ccvlp2 so it can saved in a secret repo
 (setq diary-file "~/.local/share/notes/ccvlp/diary")
 (diary)
-
+(setq bookmark-default-file "~/.local/share/emacs/site-lisp/bookmarks.el")
 
 ;; Add the Super and Hyper modifer keys to Mac
 (setq mac-right-option-modifier 'super)
@@ -74,13 +83,13 @@
 
 
 ;; INFOPATH: make sure envvars.zsh points to /usr/local and /opt/local
-(add-to-list 'Info-directory-list "~/.local/share/share/info/")
-(add-to-list 'Info-directory-list "~/.local/share/emacs/denote")
-(add-to-list 'Info-directory-list "~/.local/share/common-lisp/share/info")
+(add-to-list 'Info-directory-list "~/.local/share/info/")
+(add-to-list 'Info-directory-list "~/.local/src/emacs/denote")
+(add-to-list 'Info-directory-list "~/.local/src/common-lisp/share/info")
 
 
 ;;; Local Utilities
-(add-to-list 'load-path "~/.local/share/emacs/utils")
+;; Symlink local code into ~/.local/share/share/emacs/site-lisp
 (require 'template-funcs)
 (require 'extract)
 
@@ -91,8 +100,9 @@
 ;;;(setq inferior-lisp-program "sbcl")
 
 (setq sly-lisp-implementations
-      '((sbcl ("~/.local/share/bin/sbcl"))
-        (ccl ("~/.local/share/bin/ccl"))))
+      '((sbcl ("~/.local/bin/sbcl"))
+        (ccl  ("~/.local/bin/ccl"))
+        (abcl ("~/.local/bin/abcl"))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -147,86 +157,87 @@
 ;;; mu index
 ;;; https://www.djcbsoftware.nl/code/mu/mu4e/Gmail-configuration.html
 
-(setq mail-user-agent 'mu4e-user-agent)
+;; (setq mail-user-agent 'mu4e-user-agent)
 
-(add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
-(require 'mu4e)
+;; (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+;; (require 'mu4e)
 
-;;; mu4e - config
-(setq mu4e-get-mail-command "mbsync gmail" ; U to update from the mainview
-      mu4e-maildir (expand-file-name "~/.local/share/mail")
-      mu4e-attachment-dir (expand-file-name "~/Downloads")
-      mu4e-compose-format-flowed t
-      mu4e-html2text-command "w3m -T text/html" ; there are many options
-      mu4e-update-interval 600
-      mu4e-index-update-in-background t
-      mu4e-headers-auto-update t
-      mu4e-change-filenames-when-moving t
-      mu4e-context-policy 'pick-first)
+;; ;;; mu4e - config
+;; (setq mu4e-get-mail-command "mbsync gmail" ; U to update from the mainview
+;;       mu4e-maildir (expand-file-name "~/.local/share/mail")
+;;       mu4e-attachment-dir (expand-file-name "~/Downloads")
+;;       mu4e-compose-format-flowed t
+;;       mu4e-html2text-command "w3m -T text/html" ; there are many options
+;;       mu4e-update-interval 600
+;;       mu4e-index-update-in-background t
+;;       mu4e-headers-auto-update t
+;;       mu4e-change-filenames-when-moving t
+;;       mu4e-context-policy 'pick-first)
 
-(setq mu4e-contexts
-      (list
-       (make-mu4e-context
-        :name "CCVLP"
-        :match-func
-        (lambda (msg)
-          (when msg (string-prefix-p "/gmail" (mu4e-message-field msg :maildir))))
-        :vars
-        '((user-mail-address  . "lincoln@ccvlp.org")
-          (user-full-name     . "W. Lincoln Harvey")
-          (mu4e-refile-folder . "/gmail/[Gmail]/All Mail")
-          (mu4e-sent-folder   . "/gmail/[Gmail]/Sent Mail")
-          (mu4e-drafts-folder . "/gmail/[Gmail]/Drafts")
-          (mu4e-trash-folder  . "/gmail/[Gmail]/Trash")
-          (mu4e-sent-messages-behavior . delete)
-                                        ; add a signature
-                                        ; (mu4e-compose-signature . "...")
-          (smtpmail-smtp-server . "smtp.gmail.com")))
-       ;; (make-mu4e-context
-       ;;  :name "LOLH"
-       ;;  :match-func
-       ;;  (lambda (msg)
-       ;;    (when msg (string-prefix-p "/icloud" (mu4e-message-field msg :maildir))))
-       ;;  :vars
-       ;;  '((user-mail-address  . "lincolnlaw@mac.com")
-       ;;    (user-full-name     . "W. Lincoln Harvey")
-       ;;    (mu4e-refile-folder . "/icloud/Archive")
-       ;;    (mu4e-sent-folder   . "/icloud/Sent Messages")
-       ;;    (mu4e-drafts-folder . "/icloud/Drafts")
-       ;;    (mu4e-trash-folder  . "/icloud/Deleted Messages")
-       ;;    (mu4e-sent-messages-behavior . sent)
-       ;;                                  ; add a signature
-       ;;                                  ; (mu4e-compose-signature . "...")
-       ;;    (smtpmail-smtp-server . "smtp.mail.me.com")))
-       ))
+;; (setq mu4e-contexts
+;;       (list
+;;        (make-mu4e-context
+;;         :name "CCVLP"
+;;         :match-func
+;;         (lambda (msg)
+;;           (when msg (string-prefix-p "/gmail" (mu4e-message-field msg :maildir))))
+;;         :vars
+;;         '((user-mail-address  . "lincoln@ccvlp.org")
+;;           (user-full-name     . "W. Lincoln Harvey")
+;;           (mu4e-refile-folder . "/gmail/[Gmail]/All Mail")
+;;           (mu4e-sent-folder   . "/gmail/[Gmail]/Sent Mail")
+;;           (mu4e-drafts-folder . "/gmail/[Gmail]/Drafts")
+;;           (mu4e-trash-folder  . "/gmail/[Gmail]/Trash")
+;;           (mu4e-sent-messages-behavior . delete)
+;;                                         ; add a signature
+;;                                         ; (mu4e-compose-signature . "...")
+;;           (smtpmail-smtp-server . "smtp.gmail.com")))
+;;        ;; (make-mu4e-context
+;;        ;;  :name "LOLH"
+;;        ;;  :match-func
+;;        ;;  (lambda (msg)
+;;        ;;    (when msg (string-prefix-p "/icloud" (mu4e-message-field msg :maildir))))
+;;        ;;  :vars
+;;        ;;  '((user-mail-address  . "lincolnlaw@mac.com")
+;;        ;;    (user-full-name     . "W. Lincoln Harvey")
+;;        ;;    (mu4e-refile-folder . "/icloud/Archive")
+;;        ;;    (mu4e-sent-folder   . "/icloud/Sent Messages")
+;;        ;;    (mu4e-drafts-folder . "/icloud/Drafts")
+;;        ;;    (mu4e-trash-folder  . "/icloud/Deleted Messages")
+;;        ;;    (mu4e-sent-messages-behavior . sent)
+;;        ;;                                  ; add a signature
+;;        ;;                                  ; (mu4e-compose-signature . "...")
+;;        ;;    (smtpmail-smtp-server . "smtp.mail.me.com")))
+;;        ))
 
-;;; mu4e - shortcuts to the folders; show up in the mode line
-(setq mu4e-maildir-shortcuts
-      '((:maildir "/gmail/Inbox"                :key ?i)
-        (:maildir "/gmail/[Gmail]/All Mail"     :key ?a)
-        (:maildir "/gmail/[Gmail]/Sent Mail"    :key ?s)
-        (:maildir "/gmail/[Gmail]/Trash"        :key ?t)
-        (:maildir "/gmail/[Gmail]/Drafts"       :key ?d)))
+;; ;;; mu4e - shortcuts to the folders; show up in the mode line
+;; (setq mu4e-maildir-shortcuts
+;;       '((:maildir "/gmail/Inbox"                :key ?i)
+;;         (:maildir "/gmail/[Gmail]/All Mail"     :key ?a)
+;;         (:maildir "/gmail/[Gmail]/Sent Mail"    :key ?s)
+;;         (:maildir "/gmail/[Gmail]/Trash"        :key ?t)
+;;         (:maildir "/gmail/[Gmail]/Drafts"       :key ?d)))
 
-;;; smtpmail - config
-(setq message-send-mail-function 'smtpmail-send-it
-      starttls-use-gnutls t
-      smtpmail-starttls-credentials
-      '(("smtp.gmail.com" 587 nil nil))
-      ;;      smtpmail-smtp-server "smtp.gmail.com"
-      smtpmail-smtp-service 587
-      smtp-debut-info t
-      message-kill-buffer-on-exit t)
+;; ;;; smtpmail - config
+;; (setq message-send-mail-function 'smtpmail-send-it
+;;       starttls-use-gnutls t
+;;       smtpmail-starttls-credentials
+;;       '(("smtp.gmail.com" 587 nil nil))
+;;       ;;      smtpmail-smtp-server "smtp.gmail.com"
+;;       smtpmail-smtp-service 587
+;;       smtp-debut-info t
+;;       message-kill-buffer-on-exit t)
 
-(define-key global-map (kbd "C-c n m") #'mu4e-org-store-and-capture)
+;; (define-key global-map (kbd "C-c n m") #'mu4e-org-store-and-capture)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Denote
 
-;; Do not use the Packages version; update this using `git-pull' regularly
-(add-to-list 'load-path (expand-file-name "~/.local/share/emacs/denote"))
+;; Do not use the Packages version; place ~denote~ into ~/.local/src/emacs
+;; update this using `git-pull' regularly
 
+(require 'denote)
 (require 'denote-org-extras)
 (require 'denote-silo-extras)
 
