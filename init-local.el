@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-04-12 14:48:59 minilolh>
+;;; Time-stamp: <2024-04-20 17:40:40 minilolh>
 
 ;;; Commentary:
 ;;; init-local.el
@@ -45,9 +45,13 @@
 ;;;    6.2, ~/.local/src/emacs/utils/extract -> ~/.local/share/emacs/site-lisp/extract
 ;;; Appendix
 ;;; A. Maximize Screen on Opening: https://www.emacswiki.org/emacs/FullScreen
+;;;    - variable `ns-use-native-fullscreen'=t means use native fullscreen
+;;;    - see `ns group'
 ;;;    A.1. Emacs will start at a default frame size (small) and then expand if you maximize it
 ;;;         To avoid this distracting event, add the  following code to the early-init.el file:
 ;;;         (push '(fullscreen . maximized) default-frame-alist)
+;;;    A.2. <f11> `(toggle-frame-fullscreen)' goes native fullscreen
+;;;    A.3. M-<f10> `(toggle-frame-maximized) expands the frame to maximum'
 ;;; B. Denote Faces Title
 ;;;    B.1. Customize the face denote-faces-title to be "light green"
 ;;; C. Org.el function (org-store-log-note) should be changed:
@@ -104,6 +108,13 @@
         (ccl  ("~/.local/bin/ccl"))
         (abcl ("~/.local/bin/abcl"))))
 
+;; (eval-after-load 'sly
+;;   (define-key sly-prefix-map (kbd "M-h")
+;;               'sly-documentation-lookup))
+
+(require 'sly)
+(with-eval-after-load 'sly
+  (keymap-set sly-prefix-map "M-h" 'sly-documentation-lookup))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Org-Mode
@@ -273,7 +284,8 @@
 (setq denote-templates
       `((blank . ,(blank))
         (client . ,(newclient))
-        (case . ,(newcase))))
+        (case . ,(newcase))
+        (recipe . ,(recipe))))
 
 (add-hook 'dired-mode-hook
           (lambda ()

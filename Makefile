@@ -40,10 +40,10 @@ EMACS-CONFIG-APP := $(MAILUTILS)
 NCPU         := $(getconf _NPROCESSORS_ONLN)
 
 # UTILS
-EMACS-UTILS          := $(EMACS-SRC)/utils
+EMACS-UTILS          := $(EMACS-SRC)/lolh
 DENOTE               := $(EMACS-SRC)/denote
-SITE-LISP-UTILS      := $(SITE-LISP)/utils
-SITE-LISP-UTILS-APP  := $(SITE-LISP-APP)/utils
+SITE-LISP-UTILS      := $(SITE-LISP)/lolh
+SITE-LISP-UTILS-APP  := $(SITE-LISP-APP)/lolh
 
 # COMMON-LISP
 SRC-CL         := $(SRC)/common-lisp
@@ -169,8 +169,7 @@ $(SITE-LISP-UTILS): | emacs-build
 # Emacs.app
 # ---------
 # NOTE: emacs-app builds the most recent version from the ~master~ branch
-# and installs it into Emacs.app.
-# However, it remains in the build/nextstep directory
+# and installs it into Emacs.app, which is moved into ~/Applications
 
 emacs-app: | $(EMACS-APP)
 
@@ -200,6 +199,13 @@ site-lisp-utils-app: | $(SITE-LISP-UTILS-APP)
 $(SITE-LISP-UTILS-APP): | emacs-src-app
 	ln -s $(EMACS-UTILS) $(SITE-LISP-APP)
 	ln -s $(DENOTE) $(SITE-LISP-APP)
+
+clean-emacs-app-build:
+	rm -rf $(EMACS-APP-BUILD)
+
+clean-emacs-app:
+	rm -rf $(EMACS-APP)
+	rm  -rf $(EMACS-SRC-APP)
 
 #---------------------------------------------------------------------
 # SBCL
