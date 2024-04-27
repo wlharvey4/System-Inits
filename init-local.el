@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-04-20 17:40:40 minilolh>
+;;; Time-stamp: <2024-04-25 07:47:42 minilolh>
 
 ;;; Commentary:
 ;;; init-local.el
@@ -75,6 +75,16 @@
 ;; Add the Super and Hyper modifer keys to Mac
 (setq mac-right-option-modifier 'super)
 (setq ns-function-modifier 'hyper)
+
+;;; Helpful
+;;  Global key bindings
+(require 'helpful)
+(keymap-global-set "C-h f"   #'helpful-callable) ; default #'describe-function
+(keymap-global-set "C-h v"   #'helpful-variable) ; default #'describe-variable
+(keymap-global-set "C-h k"   #'helpful-key)      ; default #'describe-key
+(keymap-global-set "C-h x"   #'helpful-command)  ; default #'describe-command
+(keymap-global-set "C-c C-d" #'helpful-at-point) ; Org #'org-deadline
+(keymap-global-set "C-h F"   #'helpful-function) ; default #'Info-goto-emacs-command-node
 
 
 (add-hook 'before-save-hook 'time-stamp t)
@@ -285,6 +295,7 @@
       `((blank . ,(blank))
         (client . ,(newclient))
         (case . ,(newcase))
+        (checklist . ,(checklist))
         (recipe . ,(recipe))))
 
 (add-hook 'dired-mode-hook
