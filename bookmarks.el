@@ -14,24 +14,24 @@
  (rear-context-string . "46 Jan 25 13:18 ")
  (position . 202)
  (last-modified 26148 31761 968303 0))
-("emacs-lolh"
- (filename . "~/.local/share/emacs/utils/")
+("utils"
+ (filename . "~/.local/src/emacs/lolh/utils/")
  (front-context-string . ".DS_Store\n  drwx")
  (rear-context-string . "48 Nov 19 10:01 ")
  (position . 200)
- (last-modified 26176 56647 596404 0))
+ (last-modified 26229 35263 235561 0))
 ("Lincoln Harvey 2023"
- (filename . "~/Library/CloudStorage/GoogleDrive-lincoln@ccvlp.org/My Drive/2023 UD Case Prep/Lincoln Harvey 2023/")
+ (filename . "~/Google Drive/My Drive/Lincoln Harvey 2023/")
  (front-context-string . ".DS_Store\n  drwx")
  (rear-context-string . "92 Feb 23 21:13 ")
  (position . 282)
- (last-modified 26073 35969 231621 0))
+ (last-modified 26228 18284 741551 0))
 ("Lincoln Harvey 2024"
- (filename . "~/Library/CloudStorage/GoogleDrive-lincoln@ccvlp.org/My Drive/2024 UD Case Prep/Lincoln Harvey 2024/")
+ (filename . "~/Google Drive/My Drive/Lincoln Harvey 2024/")
  (front-context-string . ".DS_Store\n  drwx")
  (rear-context-string . "92 Feb 23 21:14 ")
  (position . 282)
- (last-modified 26073 35940 791544 0))
+ (last-modified 26228 18267 252157 0))
 ("org-refile-last-stored"
  (filename . "~/.local/share/notes/ccvlp/cases/20240212T130111==24=2=00265=06=0--anderson-legacy-properties-v-kyrstyn-baillie__active_case_main_osc_rtc.org")
  (front-context-string . "**** OSC Goal\n:P")
@@ -87,11 +87,11 @@
  (position . 764)
  (last-modified 26047 50217 646684 0))
 ("My Drive"
- (filename . "~/Library/CloudStorage/GoogleDrive-lincoln@ccvlp.org/My Drive/")
+ (filename . "~/Google Drive/My Drive/")
  (front-context-string . ".DS_Store\n  lrw-")
  (rear-context-string . "44 Jan 30 03:16 ")
  (position . 241)
- (last-modified 26040 56829 743206 0))
+ (last-modified 26228 18348 48839 0))
 ("notes"
  (filename . "~/.local/share/notes/")
  (front-context-string . "ccvlp2\n  drwxr-x")
