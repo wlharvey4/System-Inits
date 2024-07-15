@@ -2,18 +2,24 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("denote"
+(("utils"
+ (filename . "~/.local/src/emacs/lolh/utils/")
+ (front-context-string . "extract\n  drwxr-")
+ (rear-context-string . "28 Apr 29 15:13 ")
+ (position . 215)
+ (last-modified 26244 41598 406678 0))
+("denote"
  (filename . "~/.local/src/emacs/denote/")
  (front-context-string . ".dir-locals.el\n ")
  (rear-context-string . "46 Jan 25 13:18 ")
  (position . 202)
  (last-modified 26148 31761 968303 0))
-("utils"
+("emacs-lolh"
  (filename . "~/.local/share/emacs/utils/")
  (front-context-string . ".DS_Store\n  drwx")
  (rear-context-string . "48 Nov 19 10:01 ")
  (position . 200)
- (last-modified 26075 49989 862162 0))
+ (last-modified 26176 56647 596404 0))
 ("Lincoln Harvey 2023"
  (filename . "~/Library/CloudStorage/GoogleDrive-lincoln@ccvlp.org/My Drive/2023 UD Case Prep/Lincoln Harvey 2023/")
  (front-context-string . ".DS_Store\n  drwx")
@@ -39,11 +45,11 @@
  (position . 320)
  (last-modified 26049 8939 5587 0))
 ("personal"
- (filename . "~/.local/share/notes/personal/")
+ (filename . "~/.local/src/emacs/lolh/")
  (front-context-string . ".dir-locals.el\n ")
  (rear-context-string . "78 Jan  5 08:30 ")
  (position . 200)
- (last-modified 26048 30974 743397 0))
+ (last-modified 26176 56663 353847 0))
 ("legal"
  (filename . "~/.local/share/notes/legal/")
  (front-context-string . ".dir-locals.el\n ")

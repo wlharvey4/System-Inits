@@ -122,6 +122,11 @@ $(SYSTEM-INIT-GIT): | $(SYSTEM-INIT)
 #---------------------------------------------------------------------
 # EMACS
 # make build-emacs
+# Prerequisites
+# - autoconf
+# - texinfo
+# - gnutls
+# - pkgconfig
 
 ###
 # emacs
@@ -156,9 +161,10 @@ $(EMACS-LATEST): | emacs-src
 emacs-src: | $(EMACS-SRC)
 
 $(EMACS-SRC):
-	@mkdir -v $(EMACS)
+	@mkdir -v $(EMACS-SRC)
 
 # Symlink utils and denote into site-lisp
+# TODO: This will not work in a new system; they don't exist yet
 site-lisp-utils: | $(SITE-LISP-UTILS)
 
 $(SITE-LISP-UTILS): | emacs-build

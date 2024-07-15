@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-04-25 07:47:42 minilolh>
+;;; Time-stamp: <2024-07-10 22:41:54 lolh-mbp-16>
 
 ;;; Commentary:
 ;;; init-local.el
@@ -154,13 +154,30 @@
             (keymap-set org-mode-map "C-c C-."
                         'org-time-stamp-inactive)))
 
+;;; TASKS:      TODO(t@) NEXT(n!) HOLD(h@) | DONE(d!) CLOSED(c@) CANCELLED(C!)
+;;; DOCUMENTS:  DRAFT-DOC(D@) DRAFT-LTR(L@) SIGN(s@) PRESENT(p@) | DRAFTED(F!) SIGNED(S!) PRESENTED(P@)
+;;; HEARINGS:   HEARING(H@) | ATTENDED(A!)
+;;; COURTESY:   COURTESY(C@) | PROVIDED(P!)
+;;; DISCOVERY:  REQUEST(r@) WAIT(w@) | RECEIVED(v!) NOT-RCVD(N!)
+;;; ASSIGN:     DELEGATED(g@) | ACCOMPLISHED(a!)
+
 (setq org-todo-keywords
-      '((sequence "TODO(t@)" "NEXT(n)" "WAIT(w@)" "HOLD(h@)" "|" "DONE(d!)" "RECEIVED(!)" "CANCELLED(c!)" )
-        (sequence "DRAFT(D@)" "DELEGATE(@)" "|" "DRAFTED(!)" "DELEGATED(!)")
-        (sequence "LETTER(l@)" "|" "WROTE(!)")
-        (sequence "REQUEST(r)" "|" "REQUESTED(R!)")
-        (sequence  "HEARING(H!)" "|" "ATTENDED(A@")
-        (sequence "TASK(T!)" "|" "COMPLETED(C!)")))
+      '((sequence "TODO(t@)" "NEXT(n!)" "HOLD(h@)" "|" "DONE(d!)" "CLOSED(c@)" "CANCELLED(C!)")
+        (sequence "DRAFT-DOC(D@)" "DRAFT-LTR(L@)" "SIGN(s@)" "PRESENT(p@)" "|" "DRAFTED(F!)" "SIGNED(S!)" "PRESENTED(P@)")
+        (sequence "HEARING(H@)" "|" "ATTENDED(A!)")
+        (sequence "COURTESY(C@)" "|" "PROVIDED(P!)")
+        (sequence "REQUEST(r@)" "WAIT(w@)" "|" "RECEIVED(v!)" "NOT-RCVD(N!)")
+        (sequence "DELEGATED(g@)" "|" "ACCOMPLISHED(a!)")))
+
+
+;; (setq org-todo-keywords
+;;       '((sequence "TODO(t@)" "WAIT(w@)" "HOLD(h@)" "|" "DONE(d!)" "RECEIVED(!)" "CANCELLED(c!)" )
+;;         (sequence "DRAFT(D@)" "DELEGATE(@)" "|" "DRAFTED(!)" "DELEGATED(!)")
+;;         (sequence "LETTER(l@)" "|" "WROTE(!)")
+;;         (sequence "REQUEST(r)" "|" "REQUESTED(R!)")
+;;         (sequence  "HEARING(H!)" "|" "ATTENDED(A@")
+;;         (sequence "TASK(T!)" "NEXT(N@)" "|" "CLOSED(C@)")))
+
 
 (setq org-agenda-files
       '("~/.local/share/notes/"
@@ -178,87 +195,87 @@
 ;;; mu index
 ;;; https://www.djcbsoftware.nl/code/mu/mu4e/Gmail-configuration.html
 
-;; (setq mail-user-agent 'mu4e-user-agent)
+      ;; (setq mail-user-agent 'mu4e-user-agent)
 
-;; (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
-;; (require 'mu4e)
+      ;; (add-to-list 'load-path "/usr/local/share/emacs/site-lisp/mu4e")
+      ;; (require 'mu4e)
 
-;; ;;; mu4e - config
-;; (setq mu4e-get-mail-command "mbsync gmail" ; U to update from the mainview
-;;       mu4e-maildir (expand-file-name "~/.local/share/mail")
-;;       mu4e-attachment-dir (expand-file-name "~/Downloads")
-;;       mu4e-compose-format-flowed t
-;;       mu4e-html2text-command "w3m -T text/html" ; there are many options
-;;       mu4e-update-interval 600
-;;       mu4e-index-update-in-background t
-;;       mu4e-headers-auto-update t
-;;       mu4e-change-filenames-when-moving t
-;;       mu4e-context-policy 'pick-first)
+      ;; ;;; mu4e - config
+      ;; (setq mu4e-get-mail-command "mbsync gmail" ; U to update from the mainview
+      ;;       mu4e-maildir (expand-file-name "~/.local/share/mail")
+      ;;       mu4e-attachment-dir (expand-file-name "~/Downloads")
+      ;;       mu4e-compose-format-flowed t
+      ;;       mu4e-html2text-command "w3m -T text/html" ; there are many options
+      ;;       mu4e-update-interval 600
+      ;;       mu4e-index-update-in-background t
+      ;;       mu4e-headers-auto-update t
+      ;;       mu4e-change-filenames-when-moving t
+      ;;       mu4e-context-policy 'pick-first)
 
-;; (setq mu4e-contexts
-;;       (list
-;;        (make-mu4e-context
-;;         :name "CCVLP"
-;;         :match-func
-;;         (lambda (msg)
-;;           (when msg (string-prefix-p "/gmail" (mu4e-message-field msg :maildir))))
-;;         :vars
-;;         '((user-mail-address  . "lincoln@ccvlp.org")
-;;           (user-full-name     . "W. Lincoln Harvey")
-;;           (mu4e-refile-folder . "/gmail/[Gmail]/All Mail")
-;;           (mu4e-sent-folder   . "/gmail/[Gmail]/Sent Mail")
-;;           (mu4e-drafts-folder . "/gmail/[Gmail]/Drafts")
-;;           (mu4e-trash-folder  . "/gmail/[Gmail]/Trash")
-;;           (mu4e-sent-messages-behavior . delete)
-;;                                         ; add a signature
-;;                                         ; (mu4e-compose-signature . "...")
-;;           (smtpmail-smtp-server . "smtp.gmail.com")))
-;;        ;; (make-mu4e-context
-;;        ;;  :name "LOLH"
-;;        ;;  :match-func
-;;        ;;  (lambda (msg)
-;;        ;;    (when msg (string-prefix-p "/icloud" (mu4e-message-field msg :maildir))))
-;;        ;;  :vars
-;;        ;;  '((user-mail-address  . "lincolnlaw@mac.com")
-;;        ;;    (user-full-name     . "W. Lincoln Harvey")
-;;        ;;    (mu4e-refile-folder . "/icloud/Archive")
-;;        ;;    (mu4e-sent-folder   . "/icloud/Sent Messages")
-;;        ;;    (mu4e-drafts-folder . "/icloud/Drafts")
-;;        ;;    (mu4e-trash-folder  . "/icloud/Deleted Messages")
-;;        ;;    (mu4e-sent-messages-behavior . sent)
-;;        ;;                                  ; add a signature
-;;        ;;                                  ; (mu4e-compose-signature . "...")
-;;        ;;    (smtpmail-smtp-server . "smtp.mail.me.com")))
-;;        ))
+      ;; (setq mu4e-contexts
+      ;;       (list
+      ;;        (make-mu4e-context
+      ;;         :name "CCVLP"
+      ;;         :match-func
+      ;;         (lambda (msg)
+      ;;           (when msg (string-prefix-p "/gmail" (mu4e-message-field msg :maildir))))
+      ;;         :vars
+      ;;         '((user-mail-address  . "lincoln@ccvlp.org")
+      ;;           (user-full-name     . "W. Lincoln Harvey")
+      ;;           (mu4e-refile-folder . "/gmail/[Gmail]/All Mail")
+      ;;           (mu4e-sent-folder   . "/gmail/[Gmail]/Sent Mail")
+      ;;           (mu4e-drafts-folder . "/gmail/[Gmail]/Drafts")
+      ;;           (mu4e-trash-folder  . "/gmail/[Gmail]/Trash")
+      ;;           (mu4e-sent-messages-behavior . delete)
+      ;;                                         ; add a signature
+      ;;                                         ; (mu4e-compose-signature . "...")
+      ;;           (smtpmail-smtp-server . "smtp.gmail.com")))
+      ;;        ;; (make-mu4e-context
+      ;;        ;;  :name "LOLH"
+      ;;        ;;  :match-func
+      ;;        ;;  (lambda (msg)
+      ;;        ;;    (when msg (string-prefix-p "/icloud" (mu4e-message-field msg :maildir))))
+      ;;        ;;  :vars
+      ;;        ;;  '((user-mail-address  . "lincolnlaw@mac.com")
+      ;;        ;;    (user-full-name     . "W. Lincoln Harvey")
+      ;;        ;;    (mu4e-refile-folder . "/icloud/Archive")
+      ;;        ;;    (mu4e-sent-folder   . "/icloud/Sent Messages")
+      ;;        ;;    (mu4e-drafts-folder . "/icloud/Drafts")
+      ;;        ;;    (mu4e-trash-folder  . "/icloud/Deleted Messages")
+      ;;        ;;    (mu4e-sent-messages-behavior . sent)
+      ;;        ;;                                  ; add a signature
+      ;;        ;;                                  ; (mu4e-compose-signature . "...")
+      ;;        ;;    (smtpmail-smtp-server . "smtp.mail.me.com")))
+      ;;        ))
 
-;; ;;; mu4e - shortcuts to the folders; show up in the mode line
-;; (setq mu4e-maildir-shortcuts
-;;       '((:maildir "/gmail/Inbox"                :key ?i)
-;;         (:maildir "/gmail/[Gmail]/All Mail"     :key ?a)
-;;         (:maildir "/gmail/[Gmail]/Sent Mail"    :key ?s)
-;;         (:maildir "/gmail/[Gmail]/Trash"        :key ?t)
-;;         (:maildir "/gmail/[Gmail]/Drafts"       :key ?d)))
+      ;; ;;; mu4e - shortcuts to the folders; show up in the mode line
+      ;; (setq mu4e-maildir-shortcuts
+      ;;       '((:maildir "/gmail/Inbox"                :key ?i)
+      ;;         (:maildir "/gmail/[Gmail]/All Mail"     :key ?a)
+      ;;         (:maildir "/gmail/[Gmail]/Sent Mail"    :key ?s)
+      ;;         (:maildir "/gmail/[Gmail]/Trash"        :key ?t)
+      ;;         (:maildir "/gmail/[Gmail]/Drafts"       :key ?d)))
 
-;; ;;; smtpmail - config
-;; (setq message-send-mail-function 'smtpmail-send-it
-;;       starttls-use-gnutls t
-;;       smtpmail-starttls-credentials
-;;       '(("smtp.gmail.com" 587 nil nil))
-;;       ;;      smtpmail-smtp-server "smtp.gmail.com"
-;;       smtpmail-smtp-service 587
-;;       smtp-debut-info t
-;;       message-kill-buffer-on-exit t)
+      ;; ;;; smtpmail - config
+      ;; (setq message-send-mail-function 'smtpmail-send-it
+      ;;       starttls-use-gnutls t
+      ;;       smtpmail-starttls-credentials
+      ;;       '(("smtp.gmail.com" 587 nil nil))
+      ;;       ;;      smtpmail-smtp-server "smtp.gmail.com"
+      ;;       smtpmail-smtp-service 587
+      ;;       smtp-debut-info t
+      ;;       message-kill-buffer-on-exit t)
 
-;; (define-key global-map (kbd "C-c n m") #'mu4e-org-store-and-capture)
+      ;; (define-key global-map (kbd "C-c n m") #'mu4e-org-store-and-capture)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Denote
 
-;; Do not use the Packages version; place ~denote~ into ~/.local/src/emacs
-;; update this using `git-pull' regularly
+      ;; Do not use the Packages version; place ~denote~ into ~/.local/src/emacs
+      ;; update this using `git-pull' regularly
 
-(require 'denote)
+      (require 'denote)
 (require 'denote-org-extras)
 (require 'denote-silo-extras)
 
@@ -376,6 +393,11 @@
                  :immediate-finish nil
                  :kill-buffer t
                  :jump-to-captured t)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; LEDGER
+(setq ledger-default-date-format ledger-iso-date-format)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

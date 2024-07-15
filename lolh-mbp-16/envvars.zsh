@@ -1,5 +1,5 @@
 # ~/.oh-my-zsh/custom/envvars.zsh -*- mode:sh; -*-
-# Time-stamp: <2024-03-26 06:45:15 lolh-mbp-16>
+# Time-stamp: <2024-04-30 07:52:07 lolh-mbp-16>
 
 ## DOCUMENTATION PATHS
 export INFOPATH=/opt/local/share/info:/usr/local/share/info:
@@ -20,8 +20,8 @@ export SHARED_DRIVES=${GOOGLE_DRIVE}/shared-drives
 export SHARED_DRIVES_RTC=${GOOGLE_DRIVE}/folders/0AOM9lzbnNfCBUk9PVA
 
 # The Full Path to My Drive
-#export LH_MY_DRIVE=$HOME/Library/CloudStorage/GoogleDrive-lincoln@ccvlp.org/My\ Drive
-export LH_MY_DRIVE=$HOME/Google\ Drive/My\ Drive
+export LH_MY_DRIVE=$HOME/Library/CloudStorage/GoogleDrive-lincoln@ccvlp.org/My\ Drive
+#export LH_MY_DRIVE=$HOME/Google\ Drive/My\ Drive
 export LH_MY_PUBLIC_DOCS=${LH_MY_DRIVE}/Public\ Documents/Lincoln\ Harvey
 export LH_MY_PRIVATE_DOCS=${LH_GOOGLE_DRIVE}/Lincoln-Private
 # Open Cases
