@@ -1,5 +1,7 @@
 # ~/.oh-my-zsh/custom/functions.zsh -*- mode:sh; -*-
-# Time-stamp: <2024-04-13 21:26:38 minilolh>
+# Time-stamp: <2024-10-10 00:36:14 lolh-mbp-16>
+
+printf "${PURPLE}sourcing functions.zsh...${CLEAR}	"
 
 startup () {
     termserver
@@ -222,8 +224,10 @@ to () {
     cd "$@"
 }
 
-alias toccvlp='to $CCVLP'
-alias tolcnotes='to $LCNOTES'
-alias tocases='to $CASES'
-alias tolsnotes='to $LSNOTES'
-alias pdftk-java='java -jar $HOME/.local/share/bin/pdftk-all.jar'
+# alias toccvlp='to $CCVLP'
+# alias tolcnotes='to $LCNOTES'
+# alias tocases='to $CASES'
+# alias tolsnotes='to $LSNOTES'
+# alias pdftk-java='java -jar $HOME/.local/bin/pdftk-all.jar'
+
+printf "${PURPLE}done sourcing functions.zsh${CLEAR}\n"

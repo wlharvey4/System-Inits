@@ -15,7 +15,7 @@ SYSTEM-INIT-GIT := $(SYSTEM-INIT)/.git
 # EMACS
 EMACS-SRC      := $(SRC)/emacs
 EMACS-EXE      := $(BIN)/emacs
-EMACS-LATEST-V := emacs-29.3
+EMACS-LATEST-V := emacs-30
 EMACS-LATEST   := $(EMACS-SRC)/$(EMACS-LATEST-V)
 EMACS-BUILD    := $(EMACS-LATEST)/build
 SITE-LISP      := $(SHARE)/emacs/site-lisp

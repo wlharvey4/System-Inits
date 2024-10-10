@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-07-10 22:41:54 lolh-mbp-16>
+;;; Time-stamp: <2024-07-15 09:42:20 lolh-mbp-16>
 
 ;;; Commentary:
 ;;; init-local.el
@@ -78,13 +78,13 @@
 
 ;;; Helpful
 ;;  Global key bindings
-(require 'helpful)
-(keymap-global-set "C-h f"   #'helpful-callable) ; default #'describe-function
-(keymap-global-set "C-h v"   #'helpful-variable) ; default #'describe-variable
-(keymap-global-set "C-h k"   #'helpful-key)      ; default #'describe-key
-(keymap-global-set "C-h x"   #'helpful-command)  ; default #'describe-command
-(keymap-global-set "C-c C-d" #'helpful-at-point) ; Org #'org-deadline
-(keymap-global-set "C-h F"   #'helpful-function) ; default #'Info-goto-emacs-command-node
+;; (require 'helpful)
+;; (keymap-global-set "C-h f"   #'helpful-callable) ; default #'describe-function
+;; (keymap-global-set "C-h v"   #'helpful-variable) ; default #'describe-variable
+;; (keymap-global-set "C-h k"   #'helpful-key)      ; default #'describe-key
+;; (keymap-global-set "C-h x"   #'helpful-command)  ; default #'describe-command
+;; (keymap-global-set "C-c C-d" #'helpful-at-point) ; Org #'org-deadline
+;; (keymap-global-set "C-h F"   #'helpful-function) ; default #'Info-goto-emacs-command-node
 
 
 (add-hook 'before-save-hook 'time-stamp t)
@@ -397,6 +397,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; LEDGER
+(require 'ledger-mode)
 (setq ledger-default-date-format ledger-iso-date-format)
 
 

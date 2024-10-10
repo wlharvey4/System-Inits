@@ -1,5 +1,7 @@
 # ~/.oh-my-zsh/custom/envvars.zsh -*- mode:sh; -*-
-# Time-stamp: <2024-04-11 20:19:54 minilolh>
+# Time-stamp: <2024-10-10 00:38:57 lolh-mbp-16>
+
+printf "${CYAN}sourcing envars.zsh...${CLEAR}		"
 
 ## DOCUMENTATION PATHS
 export INFOPATH=/opt/local/share/info:/usr/local/share/info:
@@ -71,3 +73,5 @@ export GUISERVER="STOPPED"
 export TERMSERVER="STOPPED"
 
 export EMAIL="lincoln@ccvlp.org"
+
+printf "${CYAN}done sourcing envars.zsh${CLEAR}\n"
