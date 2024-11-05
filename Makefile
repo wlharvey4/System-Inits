@@ -1,49 +1,150 @@
+######################################################################
+# DIRECTORIES
+
 HOME     := ${HOME}
 CONFIG   := $(HOME)/.config
 LOCAL    := $(HOME)/.local
 HOME-APP := $(HOME)/Applications
 
+# LOCAL
 SRC       := $(LOCAL)/src
 SHARE     := $(LOCAL)/share
 BIN       := ${LOCAL}/bin
+EMACS-EXE := $(BIN)/emacs
 
-SYSTEM          := $(CONFIG)/system
-SYSTEM-INIT     := $(SYSTEM)/system-init
-SYSTEM-INIT-GIT := $(SYSTEM-INIT)/.git
+SYSTEM-INITS     := $(SRC)/System-Inits
+SYSTEM-INIT-GITS := $(SYSTEM-INIT)/.git
 
+# UTILS
+EMACS-SRC            := $(SRC)/emacs
+EMACS-UTILS          := $(EMACS-SRC)/lolh
+DENOTE               := $(EMACS-SRC)/denote
 
-# EMACS
-EMACS-SRC      := $(SRC)/emacs
-EMACS-EXE      := $(BIN)/emacs
-EMACS-LATEST-V := emacs-30
-EMACS-LATEST   := $(EMACS-SRC)/$(EMACS-LATEST-V)
-EMACS-BUILD    := $(EMACS-LATEST)/build
-SITE-LISP      := $(SHARE)/emacs/site-lisp
-EMACS-TAR      := curl -O https://git.savannah.gnu.org/cgit/emacs.git/snapshot/emacs-29.3.tar.gz
+SITE-LISP            := $(SHARE)/emacs/site-lisp
+SITE-LISP-UTILS      := $(SITE-LISP)/lolh
+SITE-LISP-UTILS-APP  := $(SITE-LISP-APP)/lolh
 
+EMACS-D      := $(EMACS-SRC)/purcell/emacs.d
+TEST-STARTUP := zsh $(EMACS-D)/test-startup.sh
+
+# END
+######################################################################
+
+######################################################################
+# EMACS REFERENCES, BRANCHES, TAGS
+
+EMACS-REF-V    := emacs
+EMACS-REF-V1   := emacs-30
+EMACS-REF-V2   := emacs-29.4
+# V|V1|V2
+EMACS-REF      := $(EMACS-SRC)/$(EMACS-REF-V)
+EMACS-REF-TAR  := $(EMACS-REF).tar.gz
+EMACS-REF-BUILD:= $(EMACS-REF)/build
+
+# END
+######################################################################
+
+######################################################################
 # EMACS.APP
+
 EMACS-APP       := $(HOME-APP)/Emacs.app
 EMACS-APP-V     := emacs-app
 EMACS-SRC-APP   := $(EMACS-SRC)/$(EMACS-APP-V)
 EMACS-APP-BUILD := $(EMACS-SRC-APP)/build
 EMACS-BUILD-APP := $(EMACS-APP-BUILD)/nextstep/Emacs.app
 SITE-LISP-APP   := $(EMACS-BUILD-APP)/Contents/Resources/site-lisp
-EMACS-GIT       := https://git.savannah.gnu.org/git/emacs.git
-EMACS-CLONE     := git clone --depth 1 $(EMACS-GIT) $(EMACS-APP-V)
 
+# END
+######################################################################
+
+######################################################################
+# ORIGINS
+# Savannah is the official origin
+# but Emacs-Mirror is much quicker for cloning
+
+EMACS-SAVAN      := https://git.savannah.gnu.org/git/emacs.git
+EMACS-MIRROR     := https://github.com/emacs-mirror/emacs
+EMACS-MIRROR-GIT := $(EMACS-MIRROR).git
+EMACS-MIRROR-TAG := $(EMACS-MIRROR)/archive/refs/tags
+
+# GITHUB REST API
+EMACS-GH-API     := https://api.github.com/repos/emacs-mirror/emacs/tarball
+
+# END
+######################################################################
+
+######################################################################
+# METHODS FOR OBTAINING EMACS SOURCES
+
+# There are two methods for obtaining source files:
+# 1- git clone
+# 2- curl
+
+# The advantage of `git clone' is that it produces a directory with source
+# files that can be used immediately.  The disadvante of `clone' is that
+# it is slightly slower.
+
+# The advantage of `curl' is that it produces a directory named after the
+# commit it comes from.  The disadvantage of `curl' is that it takes
+# more work to process (untar the tar file, then perhaps rename the directory).
+
+# 1: clone the latest version as simply `emacs'
+# this method clones the latest version of master
+# the directory is simply `emacs'
+# this is the simplest way to get the latest version
+# may alternately add a ref at the end to name the download something other than `emac'
+# e.g. `emacs-latest'
+EMACS-CLONE    := git clone --depth 1 $(EMACS-MIRROR-GIT)
+EMACS-CLONE-V  := git clone --depth 1 $(EMACS-MIRROR-GIT) $(EMACS-REF-V)
+
+# 2: clone a branch or tag
+# this method clones a particular branch or tag
+EMACS-CLONE-BR  := git clone --depth 1 --branch $(EMACS-REF-V) $(EMACS-MIRROR-GIT) $(EMACS-REF-V)
+
+# 3: download a tag version
+# this method downloads a tag snapshot as a tar file
+# when it is untarred, it is in a directory named emacs-emacs-#
+# this directory can be renamed to emacs-#
+EMACS-MI-TAG-TAR := curl -LO $(EMACS-MIRROR-TAG)/$(EMACS-REF-V).tar.gz
+
+# 4. Download a ref version (branch or tag) using the GitHub REST API
+# this method downloads a particular snapshot tarball (e.g. branch 30.0)
+# when untarred, the name will include the latest git sha
+# the tarball can then be renamed to the version downloaded
+EMACS-TAR-REF   := curl -L \
+		    -H "Accept: application/vnd.github+json" \
+		    -H "X-GitHub-Api-Version: 2022-11-28" \
+		    -o $(EMACS-REF-TAR) \
+		       $(EMACS-GH-API)/$(EMACS-REF-V)
+
+# 5. Download the latest master verson using the GitHub REST API
+# this method downloads the latest snapshot tarball (master branch)
+# the tarball must be untarred and then renamed
+# this is more cumbersome than cloning the latest version
+EMACS-LATEST := curl -L \
+			-H "Accept: application/vnd.github+json" \
+			-H "X-GitHub-Api-Version: 2022-11-28" \
+			-O $(EMACS-GH-API)
+
+# Not working
+EMACS-SAV-TAR   := https://git.savannah.gnu.org/cgit/emacs.git
+EMACS-BR-TAR    := curl -LO $(EMACS-SAV-TAR)/snapshot/$(EMACS-BR-V).tar.gz
+
+# END
+######################################################################
+
+######################################################################
 # CONFIGURE settings for EMACS
-PREFIX       := --prefix=$(LOCAL)
-MAILUTILS    := --with-mailutils
-NO-NS        := --disable-ns-self-contained
-EMACS-CONFIG := $(PREFIX) $(MAILUTILS) $(NO-NS)
-EMACS-CONFIG-APP := $(MAILUTILS)
-NCPU         := $(getconf _NPROCESSORS_ONLN)
+PREFIX           := --prefix=$(LOCAL)
+MAILUTILS        := --with-mailutils
+IMAGEMAGICK      := --with-imagemagick
+NO-NS            := --disable-ns-self-contained
+EMACS-CONFIG     := $(PREFIX) $(MAILUTILS) $(IMAGEMAGICK) $(NO-NS)
+EMACS-CONFIG-APP := $(MAILUTILS) $(IMAGEMAGICK)
+NCPU             := $(getconf _NPROCESSORS_ONLN)
 
-# UTILS
-EMACS-UTILS          := $(EMACS-SRC)/lolh
-DENOTE               := $(EMACS-SRC)/denote
-SITE-LISP-UTILS      := $(SITE-LISP)/lolh
-SITE-LISP-UTILS-APP  := $(SITE-LISP-APP)/lolh
+# END
+######################################################################
 
 # COMMON-LISP
 SRC-CL         := $(SRC)/common-lisp
@@ -59,7 +160,7 @@ SBCL-ROOT      := INSTALL_ROOT=$(LOCAL)
 SBCL-EXE       := $(BIN)/sbcl
 SBCL-INIT      := $(HOME)/.sbclrc
 # NEEDED TO BUILD SBCL
-CCL-EXE := $(CL-IMPL)/ccl/dx86cl64
+CCL-EXE        := $(CL-IMPL)/ccl/dx86cl64
 
 # CCL
 CCL-IMPL      := $(CL-IMPL)/ccl
@@ -85,7 +186,7 @@ ABCL-GIT-CLONE := git clone --depth 1 git@github.com:armedbear/abcl.git $(ABCL-L
 ABCL-BUILD     := $(ABCL-LATEST)/build
 ABCL-EXE       := $(BIN)/abcl
 ABCL-DOC       := $(ABCL-LATEST)/doc/manual/abcl.pdf
-ABCL-INIT     := $(HOME)/.abclrc
+ABCL-INIT      := $(HOME)/.abclrc
 
 # ECL
 ECL-IMPL      := $(CL-IMPL)/ecl
@@ -131,41 +232,66 @@ $(SYSTEM-INIT-GIT): | $(SYSTEM-INIT)
 ###
 # emacs
 # ~/.local/bin/emacs
-emacs: emacs-exe site-lisp-utils
 
 # NOTE: emacs-build builds the most recent branch version (e.g., 29.3)
 # and installs it into ~/.local/bin as emacs and emacsclient
-emacs-exe: | $(EMACS-EXE)
 
+emacs: | emacs-exe
+emacs-exe: $(EMACS-EXE)
 $(EMACS-EXE): | emacs-build
 
-emacs-build: | $(EMACS-BUILD)
-
-$(EMACS-BUILD): | emacs-latest
-	cd $(EMACS-LATEST) && \
+emacs-build: | emacs-ref-build
+emacs-ref-build: $(EMACS-REF-BUILD)
+$(EMACS-REF-BUILD): | emacs-ref
+	cd $(EMACS-REF) && \
 	./autogen.sh && \
-	mkdir build && \
+	mkdir -v build && \
 	cd build && \
 	../configure $(EMACS-CONFIG) && \
 	make -j$(NCPU) && \
 	make -j$(NCPU) install
+	cd $(EMACS-D) && \
+	$(TEST-STARTUP)
 
-emacs-latest: | $(EMACS-LATEST)
-
-$(EMACS-LATEST): | emacs-src
+emacs-ref: $(EMACS-REF)
+$(EMACS-REF): | emacs-src
 	cd $(EMACS-SRC) && \
-	$(EMACS-TAR) && \
-	tar -xf $(EMACS-LATEST).tar.gz && \
-	rm -rf $(EMACS-LATEST).tar.gz
+	$(EMACS-CLONE)
 
-emacs-src: | $(EMACS-SRC)
-
-$(EMACS-SRC):
+emacs-src: $(EMACS-SRC)
+$(EMACS-SRC): | src
 	@mkdir -v $(EMACS-SRC)
+
+src: $(SRC)
+$(SRC): $(LOCAL)
+	@mkdir -v $(SRC)
+
+######################################################################
+# EMACS-REF-T    := $(EMACS-SRC)/$(EMACS-REF-V) => ~/.local/src/emacs/emacs-30
+# EMACS-REF-TAR  := $(EMACS-REF).tar.gz
+
+# emacs-ref-t: $(EMACS-REF-T)
+# $(EMACS-REF-T):
+#	make emacs-ref-tar
+#	GLOBIGNORE=".:.." && \
+#	cd $(EMACS-SRC) && \
+#	mkdir $(EMACS-REF) && \
+#	tar -xf $(EMACS-REF-TAR) && \
+#	tarx=$$(tar -tf $(EMACS-REF-TAR) | head -n 1) && \
+#	cd $${tarx} && \
+#	for file in *; do mv "$$file" $(EMACS-REF) ; done && \
+#	cd .. && rmdir $${tarx} && \
+#	rm $(EMACS-REF-TAR)
+
+# emacs-ref-tar: $(EMACS-REF-TAR)
+# $(EMACS-REF-TAR): | emacs-src
+#	$(EMACS-TAR-REF)
+
+######################################################################
 
 # Symlink utils and denote into site-lisp
 # TODO: This will not work in a new system; they don't exist yet
-site-lisp-utils: | $(SITE-LISP-UTILS)
+site-lisp-utils: $(SITE-LISP-UTILS)
 
 $(SITE-LISP-UTILS): | emacs-build
 	ln -s $(EMACS-UTILS) $(SITE-LISP)
