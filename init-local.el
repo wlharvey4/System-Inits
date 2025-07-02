@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2024-10-27 04:19:37 lolh-mbp-16>
+;;; Time-stamp: <2025-05-18 10:51:53 lolh-mbp-16>
 
 ;;; Commentary:
 ;;; init-local.el
@@ -107,7 +107,8 @@
 (require 'template-funcs)
 (require 'extract)
 (require 'helpers)
-
+(require 'textproc)
+(require 'noteproc)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Common Lisp
@@ -145,7 +146,9 @@
       org-log-states-order-reversed nil
       org-startup-folded t
       org-time-stamp-rounding-minutes '(6 6)
-      org-clock-persist 'history)
+      org-clock-rounding-minutes 6
+      org-clock-persist 'history
+      org-use-speed-commands t)
 
 (org-clock-persistence-insinuate)
 
@@ -290,15 +293,13 @@
 ;; update this using `git-pull' regularly
 
 (require 'denote)
-(require 'denote-org-extras)
-(require 'denote-silo-extras)
 
-;; Denote's default directory
 (setq denote-directory (expand-file-name "~/.local/share/notes")
       denote-prompts '(title keywords signature subdirectory template)
       denote-date-prompt-use-org-read-date t
       ;; see 'denote-dired-mode-in-directories'
-      denote-dired-directories-include-subdirectories t)
+      denote-dired-directories-include-subdirectories t
+      denote-save-buffer-after-creation t)
 
 ;; Denote Dired Mode setup
 (setq denote-dired-directories ; use denote-dired-mode in these directories
@@ -322,12 +323,16 @@
         "~/.local/share/notes/legal"
         "~/.local/share/notes/personal"))
 
+(setq denote-journal-extras-directory
+      (file-name-concat (denote-directory) "personal" "journal"))
+
 (setq denote-templates
       `((blank . ,(blank))
         (client . ,(newclient))
         (case . ,(newcase))
         (checklist . ,(checklist))
-        (recipe . ,(recipe))))
+        (recipe . ,(recipe))
+        (journal . journal)))
 
 (add-hook 'dired-mode-hook
           (lambda ()
@@ -341,6 +346,9 @@
 (let ((map global-map))
   (define-key map (kbd "C-c n n") #'denote)
   (define-key map (kbd "C-c n c") #'denote-region) ; "contents" mnemonic
+  (define-key map (kbd "C-c n J") #'denote-journal-extras-new-entry)
+  (define-key map (kbd "C-c n K") #'denote-journal-extras-new-or-existing-entry)
+  (define-key map (kbd "C-c n M") #'denote-journal-extras-link-or-create-entry)
   (define-key map (kbd "C-c n N") #'denote-type)
   (define-key map (kbd "C-c n d") #'denote-date)
   (define-key map (kbd "C-c n z") #'denote-signature) ; "zettelkasten" mnemonic
@@ -426,8 +434,14 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; LEDGER
-(require 'ledger-mode)
-(setq ledger-default-date-format ledger-iso-date-format)
+;; (require 'ledger-mode)
+(add-hook 'ledger-mode-hook
+          (lambda ()
+            (setq-local ledger-default-date-format ledger-iso-date-format)
+            (setq-local tab-always-indent 'complete)
+            (setq-local completion-cycle-threshold t)
+            (setq-local ledger-complete-in-steps t)
+            (setq-local ledger-copy-transaction-insert-blank-line-after t)))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

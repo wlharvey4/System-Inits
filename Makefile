@@ -33,13 +33,26 @@ TEST-STARTUP := zsh $(EMACS-D)/test-startup.sh
 ######################################################################
 # EMACS REFERENCES, BRANCHES, TAGS
 
-EMACS-REF-V    := emacs
-EMACS-REF-V1   := emacs-30
-EMACS-REF-V2   := emacs-29.4
+EMACS-REF-V  := emacs
+EMACS-BR1-V  := emacs-30.0.92
+EMACS-BR2-V  := emacs-29.4
+# UPDATE
+EMACS-BR-V   := $(EMACS-BR2-V)
+
 # V|V1|V2
-EMACS-REF      := $(EMACS-SRC)/$(EMACS-REF-V)
-EMACS-REF-TAR  := $(EMACS-REF).tar.gz
+EMACS-REF    := $(EMACS-SRC)/$(EMACS-REF-V)
+EMACS-BR1    := $(EMACS-SRC)/$(EMACS-BR1-V)
+EMACS-BR2    := $(EMACS-SRC)/$(EMACS-BR2-V)
+# UPDATE
+EMACS-BR     := $(EMACS-BR2)
+
 EMACS-REF-BUILD:= $(EMACS-REF)/build
+EMACS-BR1-BUILD:= $(EMACS-BR1)/build
+EMACS-BR2-BUILD:= $(EMACS-BR2)/build
+# UPDATE
+EMACS-BR-BUILD := $(EMACS-BR2-BUILD)
+
+EMACS-REF-TAR  := $(EMACS-REF).tar.gz
 
 # END
 ######################################################################
@@ -99,7 +112,7 @@ EMACS-CLONE-V  := git clone --depth 1 $(EMACS-MIRROR-GIT) $(EMACS-REF-V)
 
 # 2: clone a branch or tag
 # this method clones a particular branch or tag
-EMACS-CLONE-BR  := git clone --depth 1 --branch $(EMACS-REF-V) $(EMACS-MIRROR-GIT) $(EMACS-REF-V)
+EMACS-CLONE-BR  := git clone --depth 1 --branch $(EMACS-BR-V) $(EMACS-MIRROR-GIT) $(EMACS-BR-V)
 
 # 3: download a tag version
 # this method downloads a tag snapshot as a tar file
@@ -130,6 +143,15 @@ EMACS-LATEST := curl -L \
 EMACS-SAV-TAR   := https://git.savannah.gnu.org/cgit/emacs.git
 EMACS-BR-TAR    := curl -LO $(EMACS-SAV-TAR)/snapshot/$(EMACS-BR-V).tar.gz
 
+EMACS-COMPILE := ./autogen.sh && \
+		 mkdir -v build && \
+		 cd build && \
+		 ../configure $(EMACS-CONFIG) && \
+		 make -j$(NCPU) && \
+		 make -j$(NCPU) install && \
+		 cd $(EMACS-D) && $(TEST-STARTUP)
+
+
 # END
 ######################################################################
 
@@ -153,11 +175,11 @@ CL-IMPL        := $(SRC-CL)/implementations
 # SBCL
 SBCL-IMPL      := $(CL-IMPL)/sbcl
 # TODO: Figure out how to inclue the current version number automatically
-SBCL-LATEST-V  := sbcl-2.4.3
+SBCL-LATEST-V  := sbcl-2.5.6
 SBCL-LATEST    := $(SBCL-IMPL)/$(SBCL-LATEST-V)
 SBCL-GIT-CLONE := git clone --depth 1 https://git.code.sf.net/p/sbcl/sbcl $(SBCL-LATEST-V)
-SBCL-ROOT      := INSTALL_ROOT=$(LOCAL)
-SBCL-EXE       := $(BIN)/sbcl
+SBCL-ROOT      := INSTALL_ROOT=$(CL-IMPL)
+SBCL-EXE       := $(CL-IMPL)/bin/sbcl
 SBCL-INIT      := $(HOME)/.sbclrc
 # NEEDED TO BUILD SBCL
 CCL-EXE        := $(CL-IMPL)/ccl/dx86cl64
@@ -168,7 +190,7 @@ CCL-LATEST-V  := ccl-1.12.2
 CCL-LATEST    := $(CCL-IMPL)/$(CCL-LATEST-V)
 CCL-GIT-CLONE := git clone https://github.com/Clozure/ccl.git $(CCL-IMPL)/$(CCL-LATEST-V)
 CCL-BOOT      := curl -L -O https://github.com/Clozure/ccl/releases/download/v1.12.2/darwinx86.tar.gz
-CCL-EXE       := $(BIN)/ccl
+CCL-EXE       := $(CL-IMPL)/bin/ccl
 CCL-OS        := $(CCL-LATEST)/lisp-kernel/darwinx8664
 CCL-BIN       := $(CCL-LATEST)/dx86cl64
 CCL-HEAP      := $(CCL-BIN).image
@@ -203,6 +225,8 @@ QL-SETUP  := $(QUICKLISP)/setup.lisp
 
 ORIGIN    := git@wlharvey4:wlharvey4/System-Init.git
 
+######################################################################
+
 
 system: $(SYSTEM)
 
@@ -222,7 +246,7 @@ $(SYSTEM-INIT-GIT): | $(SYSTEM-INIT)
 
 #---------------------------------------------------------------------
 # EMACS
-# make build-emacs
+# make emacs | emacs-branch
 # Prerequisites
 # - autoconf
 # - texinfo
@@ -231,10 +255,27 @@ $(SYSTEM-INIT-GIT): | $(SYSTEM-INIT)
 
 ###
 # emacs
-# ~/.local/bin/emacs
+# ~/.local/bin/emacs symlinked to particular emacs branch
 
-# NOTE: emacs-build builds the most recent branch version (e.g., 29.3)
+# NOTE: `make emacs' builds the most recent branch version (e.g., master)
 # and installs it into ~/.local/bin as emacs and emacsclient
+# `make emacs-branch' builds and installs a particular branch or tag.
+# NOTE: In order to build a branch, you must update these three variables:
+# 1. EMACS-BR-V
+# 2. EMACS-BR
+# 3. EMACS-BR-BUILD
+
+emacs-branch: | emacs-br-build
+
+emacs-br-build: $(EMACS-BR-BUILD)
+$(EMACS-BR-BUILD): | emacs-br
+	cd $(EMACS-BR) && \
+	$(EMACS-COMPILE)
+
+emacs-br: $(EMACS-BR)
+$(EMACS-BR): | emacs-src
+	cd $(EMACS-SRC) && \
+	$(EMACS-CLONE-BR)
 
 emacs: | emacs-exe
 emacs-exe: $(EMACS-EXE)
@@ -244,14 +285,7 @@ emacs-build: | emacs-ref-build
 emacs-ref-build: $(EMACS-REF-BUILD)
 $(EMACS-REF-BUILD): | emacs-ref
 	cd $(EMACS-REF) && \
-	./autogen.sh && \
-	mkdir -v build && \
-	cd build && \
-	../configure $(EMACS-CONFIG) && \
-	make -j$(NCPU) && \
-	make -j$(NCPU) install
-	cd $(EMACS-D) && \
-	$(TEST-STARTUP)
+	$(EMACS-COMPILE)
 
 emacs-ref: $(EMACS-REF)
 $(EMACS-REF): | emacs-src
@@ -357,10 +391,11 @@ $(SBCL-EXE): sbcl-build
 sbcl-build: | $(SBCL-LATEST)/version.lisp-expr
 	@echo in sbcl-build
 
+# Don't forget to update this version number
 $(SBCL-LATEST)/version.lisp-expr: sbcl-git-clone
 	@echo in version.lisp-expr
 	cd $(SBCL-LATEST) && \
-	echo '"2.4.3"' > version.lisp-expr && \
+	echo '"2.5.6"' > version.lisp-expr && \
 	sh make.sh $(CCL-EXE)
 	cd $(SBCL-LATEST)/doc/manual && make
 

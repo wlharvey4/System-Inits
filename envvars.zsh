@@ -1,5 +1,5 @@
 # ~/.oh-my-zsh/custom/envvars.zsh -*- mode:sh; -*-
-# Time-stamp: <2024-10-10 00:38:57 lolh-mbp-16>
+# Time-stamp: <2025-07-01 23:16:50 lolh-mbp-16>
 
 printf "${CYAN}sourcing envars.zsh...${CLEAR}		"
 
@@ -8,39 +8,51 @@ export INFOPATH=/opt/local/share/info:/usr/local/share/info:
 export MANPATH=/opt/local/share/man:/usr/local/share/man
 
 ## ICLOUD CLOUDDOCS
-export CLOUDDOCS=$HOME/Library/Mobile\ Documents/com\~apple\~CloudDocs
-export CD_DOCUMENTS=${CLOUDDOCS}/Documents
-export CD_DOWNLOADS=${CLOUDDOCS}/Downloads/
-export CD_DATA=${CD_DOCUMENTS}/Data
+#export CLOUDDOCS=$HOME/Library/Mobile\ Documents/com\~apple\~CloudDocs
+#export CD_DOCUMENTS=${CLOUDDOCS}/Documents
+#export CD_DOWNLOADS=${CLOUDDOCS}/Downloads/
+#export CD_DATA=${CD_DOCUMENTS}/Data
 
-## GOOGLE DRIVE My Drive (CloudStorage)
+
+
 
 # GOOGLE DRIVE
-export GOOGLE_DRIVE=https://drive.google.com/drive
-export MY_DRIVE=${GOOGLE_DRIVE}/my-drive
-export SHARED_DRIVES=${GOOGLE_DRIVE}/shared-drives
-export SHARED_DRIVES_RTC=${GOOGLE_DRIVE}/folders/0AOM9lzbnNfCBUk9PVA
+export GOOGLE_DRIVE=$HOME/Library/CloudStorage/GoogleDrive-lincoln@ccvlp.org
+export GD=$HOME/Google\ Drive
 
-# The Full Path to My Drive
-export LH_MY_DRIVE=$HOME/Library/CloudStorage/GoogleDrive-lincoln@ccvlp.org/My\ Drive
-export LH_MY_PUBLIC_DOCS=${LH_MY_DRIVE}/Public\ Documents/Lincoln\ Harvey
-export LH_MY_PRIVATE_DOCS=${LH_GOOGLE_DRIVE}/Lincoln-Private
-# Open Cases
-export LH_MY_CASES_2022=${LH_MY_DRIVE}/2022\ UD\ Case\ Prep/Lincoln\ Harvey\ 2022
-export LH_MY_CASES_2023=${LH_MY_DRIVE}/2023\ UD\ Case\ Prep/Lincoln\ Harvey\ 2023
-export LH_MY_CASES_2024=${LH_MY_DRIVE}/2024\ UD\ Case\ Prep/Lincoln\ Harvey\ 2024
-# Closed Cases
-export LH_MY_CLOSED_CASES_2022=${LH_MY_CASES_2022}/00_2022_Closed_Cases
-export LH_MY_CLOSED_CASES_2023=${LH_MY_CASES_2023}/00_2023_Closed_Cases
-export LH_MY_CLOSED_CASES_2024=${LH_MY_CASES_2024}/00_2024_Closed_Cases
+# MY DRIVE
+export MY_DRIVE=${GOOGLE_DRIVE}/My\ Drive
+export MY_GD=${GD}/My\ Drive
 
-# A shortcut to My Drive
-export GOOGLE_DRIVE=$HOME/Google\ Drive/My\ Drive
-export GOOGLE_DRIVE_2022=${GOOGLE_DRIVE}/Lincoln\ Harvey\ 2022
-export GOOGLE_DRIVE_2023=${GOOGLE_DRIVE}/Lincoln\ Harvey\ 2023
-export GOOGLE_DRIVE_2024=${GOOGLE_DRIVE}/Lincoln\ Harvey\ 2024
+# SHARED DRIVES
+export SHARED_DRIVES=${GOOGLE_DRIVE}/Shared\ drives
+export SH_GD=${GD}/Shared\ drives
 
-export GD_CLOSED=00_2023_Closed_Cases
+# RTC DRIVES
+export RTC=${SHARED_DRIVES}/Right\ to\ Counsel
+export JT_HJP_RTC=${SHARED_DRIVES}/Joint\ HJP\ +\ RTC
+export ALL_STAFF=${SHARED_DRIVES}/All\ Staff
+
+# My Open Cases
+export RTC_2022=${RTC}/2022\ UD\ Case\ Prep/Lincoln\ Harvey\ 2022
+export RTC_2023=${RTC}/2023\ UD\ Case\ Prep/Lincoln\ Harvey\ 2023
+export RTC_2024=${RTC}/2024\ UD\ Case\ Prep/Lincoln\ Harvey\ 2024
+export RTC_2025=${RTC}/2025\ UD\ Case\ Prep/Lincoln\ Harvey\ 2025
+# My Closed Cases
+export RTC_2022_CLOSED=${RTC_2022}/00_Closed\ Cases
+export RTC_2023_CLOSED=${RTC_2023}/00_Closed\ Cases
+export RTC_2024_CLOSED=${RTC_2024}/00_Closed\ Cases
+export RTC_2025_CLOSED=${RTC_2025}/00_Closed\ Cases
+
+# Public Documents
+export PUBLIC_DOCS=${MY_DRIVE}/Public\ Documents.gdrive
+# Prive Documents
+export PRIVATE_DOCS=${MY_DRIVE}/Lincoln-Private
+
+export HTTP_GOOGLE_DRIVE=https://drive.google.com/drive
+
+
+
 
 ## JAVA TEMURIN-<VER>
 # https://wolfpaulus.com/java-on-macos-monterey/
@@ -60,6 +72,7 @@ export HLEDGER=${WORKFIN}/hledger
 #export LEDGER_FILE=${HLEDGER}/hledger.journal
 
 #COMMON LISP
+export SBCL_HOME=$HOME/.local/src/common-lisp/implementations/lib/sbcl
 export ROSWELL_HOME=$HOME/.local/share/common-lisp/roswell
 
 # Preferred editor for local and remote sessions

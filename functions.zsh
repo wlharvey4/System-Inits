@@ -1,126 +1,199 @@
 # ~/.oh-my-zsh/custom/functions.zsh -*- mode:sh; -*-
-# Time-stamp: <2024-10-10 00:36:14 lolh-mbp-16>
+# Time-stamp: <2024-11-17 23:52:53 lolh-mbp-16>
 
 printf "${PURPLE}sourcing functions.zsh...${CLEAR}	"
+
+guiserver () {
+#    if [[ $(emacs -Q -batch --eval \
+#                  '(progn (require (quote server)) (setq server-name "guiserver") (princ (server-running-p)))') == "t" ]];
+    if [[ $GUISERVER == "RUNNING" ]];
+    then
+        echo "Guiserver is running";
+    else
+        if [[ $GUISERVER == "STOPPED" ]];
+        then
+            GUISERVER="RUNNING"
+           echo "Starting Guiserver"
+            ~/.local/bin/emacs&
+         else
+            echo Error: Guiserver is $GUISERVER
+        fi
+    fi
+}
+
+guiserver-kill () {
+    if [[ GUISERVER="RUNNING" ]];
+    then
+        echo "Killing Guiserver"
+        pkill -lf /.local/bin/emacs
+        GUISERVER="STOPPED"
+    else
+        echo "Guiserver is not running"
+    fi
+}
+
+
+termserver () {
+    if [[ $TERMSERVER == "RUNNING" ]];
+    then
+        echo "Termserver is running."
+    else
+        TERMSERVER="RUNNING"
+        echo "Startng Termserver"
+        emacs -nw --daemon=termserver;
+    fi
+}
+
+termserver-kill () {
+    if [[ $TERMSERVER == "RUNNING" ]]
+    then
+        echo "Killing Termserver"
+        pkill -lf termserver;
+        TERMSERVER=STOPPED
+    else
+        echo "Termserver is not running."
+    fi
+}
+
+tmuxserver () {
+    if [[ -z $TMUX ]];
+    then
+        echo "Starting tmux"
+        tmux a -t Home
+    else
+        echo "tmux is running"
+    fi
+}
 
 startup () {
     termserver
     guiserver
-    tmux
- }
-
-server-status () {
-    unset ss
-    ss=$(emacsclient -s $1 -e "(print \"$1\")") 2>/dev/null
-    printf "%s" ${ss:="nil"}
 }
 
-server-start () {
-    while getopts ":a:s:t:" name
-    do
-        case $name in
-            ("a") ss=$(server-status $OPTARG);
-                  if [[ $ss != \"$OPTARG\" ]]
-                  then
-                      ~/Applications/Emacs.app/Contents/MacOS/Emacs --eval '(require (quote server))' \
-                                                                    --eval "(setq server-name \"$OPTARG\")" \
-                                                                    --eval '(server-start)' \
-                          &
-                  fi
-                  printf "%s is running.\n" $OPTARG;
-                  ;;
-            ("s") ss=$(server-status $OPTARG);
-                  if [[ $ss != \"$OPTARG\" ]]
-                  then
-                      emacs --eval '(require (quote server))' \
-                            --eval "(setq server-name \"$OPTARG\")" \
-                            --eval '(server-start)' \
-                          &
-                  fi
-                  printf "%s is running.\n" $OPTARG;
-                  ;;
-            ("t") printf "opt: %s  arg: %s\n" $name $OPTARG; echo server termserver;
-                            ss=$(server-status $OPTARG);
-                            if [[ $ss != \"$OPTARG\" ]]
-                            then
-                                emacs -nw --daemon=$OPTARG
-                            fi
-                            printf "%s is running.\n" $OPTARG;
-                            ;;
-            (":") printf "opt: %s  arg: %s\n" $name $OPTARG; echo missing argument ;;
-            ("?") printf "opt: %s  arg: %s\n" $name $OPTARG; echo wrong option ;;
-        esac
-    done
-    echo Done
-}
-
-guiserver () {
-    # if emacsclient -qs guiserver --eval '(prin1 "The guiserver is running.")' 2>/dev/null
-    if [[ ${GUISERVER} = "RUNNING" ]]; then
-        print "The guiserver is running."
-    else
-        # emacs should be in $PATH
-	emacs&
-       	print "Started the guiserver."
-        GUISERVER="RUNNING"
-    fi
-}
-
-guiserver-stop () {
-    if [[ ${GUISERVER} = "RUNNING" ]]; then
-        emacsclient -s guiserver -e '(kill-emacs)'
-        GUISERVER="STOPPED"
-        print "Killed the guiserver."
-    else
-        :
-    fi
-}
-
-termserver () {
-    # if emacsclient -qs termserver --eval '(prin1 "The termserver is running.")' 2>/dev/null 
-    if [[ ${TERMSERVER} = "RUNNING" ]]; then
-        print "The termserver is running."
-    else
-        # emacs should be in $PATH
-	emacs -nw --no-desktop --daemon=termserver
-        print "Started the termserver."
-        TERMSERVER="RUNNING"
-    fi
-}
-
-termserver-stop () {
-    if [[ $TERMSERVER="RUNNING" ]]; then
-        emacsclient -s termserver -e '(kill-emacs)'
-        TERMSERVER="STOPPED"
-        print "Killed the termserver."
-    else
-        :
-    fi
-}
-
-emacs-servers-stop () {
-    guiserver-stop
-    termserver-stop
-}
-
-# This shutdown function kills everything completely no-questions-asked dead.
 shutdown () {
-    emacs-servers-stop
+    pkill -lf emacs
     tmux kill-server
     exec pkill -lf iTerm
 }
 
-emacs-servers-help () {
-    print "guiserver
-termserver
-guiserver-stop
-termserver-stop
-emacs-servers-stop
-startup
-shutdown
-ect
-ecg"
-}
+# startup () {
+#     termserver
+#     guiserver
+#     tmux
+#  }
+
+# server-status () {
+#     unset ss
+#     ss=$(emacsclient -s $1 -e "(print \"$1\")") 2>/dev/null
+#     printf "%s" ${ss:="nil"}
+# }
+
+# server-start () {
+#     while getopts ":a:s:t:" name
+#     do
+#         case $name in
+#             ("a") ss=$(server-status $OPTARG);
+#                   if [[ $ss != \"$OPTARG\" ]]
+#                   then
+#                       ~/Applications/Emacs.app/Contents/MacOS/Emacs --eval '(require (quote server))' \
+#                                                                     --eval "(setq server-name \"$OPTARG\")" \
+#                                                                     --eval '(server-start)' \
+#                           &
+#                   fi
+#                   printf "%s is running.\n" $OPTARG;
+#                   ;;
+#             ("s") ss=$(server-status $OPTARG);
+#                   if [[ $ss != \"$OPTARG\" ]]
+#                   then
+#                       emacs --eval '(require (quote server))' \
+#                             --eval "(setq server-name \"$OPTARG\")" \
+#                             --eval '(server-start)' \
+#                           &
+#                   fi
+#                   printf "%s is running.\n" $OPTARG;
+#                   ;;
+#             ("t") printf "opt: %s  arg: %s\n" $name $OPTARG; echo server termserver;
+#                             ss=$(server-status $OPTARG);
+#                             if [[ $ss != \"$OPTARG\" ]]
+#                             then
+#                                 emacs -nw --daemon=$OPTARG
+#                             fi
+#                             printf "%s is running.\n" $OPTARG;
+#                             ;;
+#             (":") printf "opt: %s  arg: %s\n" $name $OPTARG; echo missing argument ;;
+#             ("?") printf "opt: %s  arg: %s\n" $name $OPTARG; echo wrong option ;;
+#         esac
+#     done
+#     echo Done
+# }
+
+# guiserver () {
+#     # if emacsclient -qs guiserver --eval '(prin1 "The guiserver is running.")' 2>/dev/null
+#     if [[ ${GUISERVER} = "RUNNING" ]]; then
+#         print "The guiserver is running."
+#     else
+#         # emacs should be in $PATH
+# 	emacs&
+#        	print "Started the guiserver."
+#         GUISERVER="RUNNING"
+#     fi
+# }
+
+# guiserver-stop () {
+#     if [[ ${GUISERVER} = "RUNNING" ]]; then
+#         emacsclient -s guiserver -e '(kill-emacs)'
+#         GUISERVER="STOPPED"
+#         print "Killed the guiserver."
+#     else
+#         :
+#     fi
+# }
+
+# termserver () {
+#     # if emacsclient -qs termserver --eval '(prin1 "The termserver is running.")' 2>/dev/null 
+#     if [[ ${TERMSERVER} = "RUNNING" ]]; then
+#         print "The termserver is running."
+#     else
+#         # emacs should be in $PATH
+# 	emacs -nw --no-desktop --daemon=termserver
+#         print "Started the termserver."
+#         TERMSERVER="RUNNING"
+#     fi
+# }
+
+# termserver-stop () {
+#     if [[ $TERMSERVER="RUNNING" ]]; then
+#         emacsclient -s termserver -e '(kill-emacs)'
+#         TERMSERVER="STOPPED"
+#         print "Killed the termserver."
+#     else
+#         :
+#     fi
+# }
+
+# emacs-servers-stop () {
+#     guiserver-stop
+#     termserver-stop
+# }
+
+# # This shutdown function kills everything completely no-questions-asked dead.
+# shutdown () {
+#     emacs-servers-stop
+#     tmux kill-server
+#     exec pkill -lf iTerm
+# }
+
+# emacs-servers-help () {
+#     print "guiserver
+# termserver
+# guiserver-stop
+# termserver-stop
+# emacs-servers-stop
+# startup
+# shutdown
+# ect
+# ecg"
+# }
 
 alias ect='emacsclient -s termserver'
 alias ecg='emacsclient -s guiserver'
