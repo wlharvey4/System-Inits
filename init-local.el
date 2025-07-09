@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2025-05-18 10:51:53 lolh-mbp-16>
+;;; Time-stamp: <2025-07-09 08:44:29 lolh-mbp-16>
 
 ;;; Commentary:
 ;;; init-local.el
@@ -43,6 +43,10 @@
 ;;; 6. Local Emacs Code should be Symlinked into a Site Lisp directory
 ;;;    6.1. ~/.local/src/emacs/utils/template-funcs -> ~/.local/share/emacs/site-lisp/template-funcs
 ;;;    6.2, ~/.local/src/emacs/utils/extract -> ~/.local/share/emacs/site-lisp/extract
+;;; 7. Common Lisp
+;;;    7.1 Prefix is ~/.local/src/common-lisp
+;;;    7.2 bin is ~/.local/src/common-lisp/bin
+;;;    7.3 implementations at ~/.local/source/common-lisp/implementations
 ;;; Appendix
 ;;; A. Maximize Screen on Opening: https://www.emacswiki.org/emacs/FullScreen
 ;;;    - variable `ns-use-native-fullscreen'=t means use native fullscreen
@@ -115,16 +119,18 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;(setq inferior-lisp-program "sbcl")
 
-(setq sly-lisp-implementations
-      '((sbcl ("~/.local/bin/sbcl"))
-        (ccl  ("~/.local/bin/ccl"))
-        (abcl ("~/.local/bin/abcl"))))
-
-;; (eval-after-load 'sly
-;;   (define-key sly-prefix-map (kbd "M-h")
-;;               'sly-documentation-lookup))
-
 (require 'sly)
+
+(setf sly-lisp-implementations nil
+      cl-implementations-path "~/.local/src/common-lisp/implementations"
+      cl-implementations (list 'sbcl 'ccl 'abcl))
+
+;;; TODO: add allowed options and keyword arguments
+(with-eval-after-load 'sly
+  (dolist (imp cl-implementations)
+    (push (list imp (list cl-implementations-path))
+          sly-lisp-implementations)))
+
 (with-eval-after-load 'sly
   (keymap-set sly-prefix-map "M-h" 'sly-documentation-lookup))
 
