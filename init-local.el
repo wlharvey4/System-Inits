@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2025-07-09 08:44:29 lolh-mbp-16>
+;;; Time-stamp: <2025-11-03 09:46:16 lolh-mbp-16>
 
 ;;; Commentary:
 ;;; init-local.el
@@ -103,6 +103,7 @@
 ;; INFOPATH: make sure envvars.zsh points to /usr/local and /opt/local
 (add-to-list 'Info-directory-list "~/.local/share/info/")
 (add-to-list 'Info-directory-list "~/.local/src/emacs/denote")
+(add-to-list 'Info-directory-list "~/.local/src/emacs/denote-org")
 (add-to-list 'Info-directory-list "~/.local/src/common-lisp/share/info")
 
 
@@ -119,16 +120,16 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;(setq inferior-lisp-program "sbcl")
 
-(require 'sly)
+;;; (require 'sly)
 
 (setf sly-lisp-implementations nil
-      cl-implementations-path "~/.local/src/common-lisp/implementations"
-      cl-implementations (list 'sbcl 'ccl 'abcl))
+      cl-implementations-path "~/.local/src/common-lisp/implementations/bin"
+      cl-implementations (list 'abcl 'sbcl 'ccl))
 
 ;;; TODO: add allowed options and keyword arguments
 (with-eval-after-load 'sly
   (dolist (imp cl-implementations)
-    (push (list imp (list cl-implementations-path))
+    (push (list imp (list (expand-file-name (prin1-to-string imp) cl-implementations-path)))
           sly-lisp-implementations)))
 
 (with-eval-after-load 'sly
@@ -154,7 +155,8 @@
       org-time-stamp-rounding-minutes '(6 6)
       org-clock-rounding-minutes 6
       org-clock-persist 'history
-      org-use-speed-commands t)
+      org-use-speed-commands t
+      org-refile-targets '((nil . (:level . 3)))) ; For the benefit of Refiling while running Denote
 
 (org-clock-persistence-insinuate)
 
@@ -194,8 +196,9 @@
       '("~/.local/share/notes/"
         "~/.local/share/notes/ccvlp/"
         "~/.local/share/notes/ccvlp/cases/"
-        "~/.local/share/notes/ccvlp/law/"
-        "~/.local/share/notes/legal/"
+        "~/.local/share/notes/ccvlp/clients/"
+        "~/.local/share/notes/ccvlp/hjp/"
+        "~/.local/share/notes/law/"
         "~/.local/share/notes/personal/"))
 
 (setq org-default-notes-file "~/.local/share/notes/captured.org")
@@ -299,6 +302,7 @@
 ;; update this using `git-pull' regularly
 
 (require 'denote)
+(require 'denote-org)
 
 (setq denote-directory (expand-file-name "~/.local/share/notes")
       denote-prompts '(title keywords signature subdirectory template)
