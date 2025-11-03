@@ -1,3 +1,6 @@
+# Main Makefile for System Installation
+# Time-stamp: <2025-11-03 09:44:17 lolh-mbp-16>
+
 ######################################################################
 # DIRECTORIES
 
@@ -5,12 +8,18 @@ HOME     := ${HOME}
 CONFIG   := $(HOME)/.config
 LOCAL    := $(HOME)/.local
 HOME-APP := $(HOME)/Applications
+DLS      := $(HOME)/Downloads
 
 # LOCAL
 SRC       := $(LOCAL)/src
 SHARE     := $(LOCAL)/share
 BIN       := ${LOCAL}/bin
 EMACS-EXE := $(BIN)/emacs
+# JAVA CLASSPATH
+# NOTE: When a CLASSPATH is added as an environment variable, change this to:
+# CLASSPATH := ${CLASSPATH}
+CLASSPATH := $(SRC)/java
+
 
 SYSTEM-INITS     := $(SRC)/System-Inits
 SYSTEM-INIT-GITS := $(SYSTEM-INIT)/.git
@@ -33,6 +42,7 @@ TEST-STARTUP := zsh $(EMACS-D)/test-startup.sh
 ######################################################################
 # EMACS REFERENCES, BRANCHES, TAGS
 
+# TODO: Learn how to update this when running MAKE
 EMACS-REF-V  := emacs
 EMACS-BR1-V  := emacs-30.0.92
 EMACS-BR2-V  := emacs-29.4
@@ -171,6 +181,7 @@ NCPU             := $(getconf _NPROCESSORS_ONLN)
 # COMMON-LISP
 SRC-CL         := $(SRC)/common-lisp
 CL-IMPL        := $(SRC-CL)/implementations
+CL-IMPL-BIN    := $(CL-IMPL)/bin
 
 # SBCL
 SBCL-IMPL      := $(CL-IMPL)/sbcl
@@ -202,13 +213,19 @@ CCL-INIT      := $(HOME)/.ccl-init.lisp
 
 # ABCL
 ABCL-IMPL      := $(CL-IMPL)/abcl
-ABCL-LATEST-V  := abcl-1.9.2
+ABCL-V         := 1.9.2
+ABCL-LATEST-V  := abcl-$(ABCL-V)
+ABCL-BINARY-V  := abcl-bin-$(ABCL-V)
+ABCL-BINARY    := $(ABCL-IMPL)/$(ABCL-BINARY-V)
 ABCL-LATEST    := $(ABCL-IMPL)/$(ABCL-LATEST-V)
 ABCL-GIT-CLONE := git clone --depth 1 git@github.com:armedbear/abcl.git $(ABCL-LATEST-V)
 ABCL-BUILD     := $(ABCL-LATEST)/build
 ABCL-EXE       := $(BIN)/abcl
 ABCL-DOC       := $(ABCL-LATEST)/doc/manual/abcl.pdf
 ABCL-INIT      := $(HOME)/.abclrc
+ABCL-JAR       := $(ABCL-BINARY)/abcl.jar
+ABCL-SH        := $(ABCL-BINARY)/abcl.sh
+ABCL-SH-LN     := $(CL-IMPL-BIN)/abcl
 
 # ECL
 ECL-IMPL      := $(CL-IMPL)/ecl
@@ -462,6 +479,24 @@ abcl-impl: | $(ABCL-IMPL)
 $(ABCL-IMPL):
 	mkdir $(ABCL-IMPL)
 
+
+
+# ABCL Binary (binary downloaded into ~/Downloads)
+# abcl-bin-[VERSION]
+abcl-binary: | $(CL-IMPL) abcl-impl abcl-binary-install
+
+abcl-binary-install: | $(ABCL-BINARY)
+
+$(ABCL-BINARY):
+	cp -R $(DLS)/$(ABCL-BINARY-V) $(ABCL-IMPL)
+	echo '#! ' $${SHELL} > $(ABCL-SH)
+	echo 'exec java -cp ' $(ABCL-JAR)':'$(CLASSPATH)' org.armedbear.lisp.Main' "\"$$@\"" >> $(ABCL-SH) >> $(ABCL-SH)
+	echo
+	chmod 755 $(ABCL-SH)
+	ln -s $(ABCL-SH) $(ABCL-SH-LN)
+
+
+
 abcl-latest: | $(ABCL-LATEST)
 
 $(ABCL-LATEST): | abcl-impl
@@ -484,6 +519,8 @@ $(ABCL-DOC):
 abcl-doc: | abcl-doc-make
 	open $(ABCL-LATEST)/doc/manual/abcl.pdf
 
+abcl-install:
+	cp -R ~/Downloads/$(ABCL-IMPL)
 
 #---------------------------------------------------------------------
 # ECL
