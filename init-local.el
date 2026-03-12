@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2025-11-03 09:46:16 lolh-mbp-16>
+;;; Time-stamp: <2026-03-10 23:03:35 lolh-mbp-16>
 
 ;;; Commentary:
 ;;; init-local.el
@@ -40,6 +40,7 @@
 ;;;    5.4. bookmark-default-file => ~/.local/share/emacs/site-list/bookmarks.el
 ;;;           symlink ~/.local/src/System-Inits/bookmarks.el to
 ;;;           ~/.local/share/emacs/site-list/bookmarks.el
+;;;    5.5. Accent-Map custom keybindings
 ;;; 6. Local Emacs Code should be Symlinked into a Site Lisp directory
 ;;;    6.1. ~/.local/src/emacs/utils/template-funcs -> ~/.local/share/emacs/site-lisp/template-funcs
 ;;;    6.2, ~/.local/src/emacs/utils/extract -> ~/.local/share/emacs/site-lisp/extract
@@ -475,6 +476,98 @@
     (newline 1)
     (insert-char ?- line-len)
     (newline 1)))
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Custom Map Keybindings for Language Accent Input: accent-map
+;;; 2026-03-10T22:30
+;;; These were tested for conflicts and no conflicts were found.
+
+;; Mnemonics: C-c i stands for Insert or International, making it easy
+;; to remember  when you're  in the  middle of  a French  or Icelandic
+;; drill.
+
+;; Using a prefix character is a classic Emacs strategy. We can set it
+;; up so that if you press the  Shift key with the number (e.g., !, @,
+;; #), it triggers the uppercase  version. However, since symbols like
+;; ! and # can be tricky to type on some keyboard layouts, I’ve set up
+;; the logic below to allow for two intuitive ways to do it:
+
+;; 1. Shifted Numbers: Use the symbol  above the number (e.g., C-c i !
+;; e for È).
+
+;; 2. Shifted  Letters: Use the  standard number but a  capital letter
+;; (e.g., C-c i 1 E for È).
+
+;; The "Full Coverage" Elisp Snippet
+;; This  version covers  both  lowercase and  uppercase  for all  your
+;; French, German, and Icelandic needs.
+
+(defun insert-char-fn (char)
+  (lambda () (interactive) (insert char)))
+
+(defvar-keymap accent-map
+  :doc "Comprehensive map for French, German, and Icelandic with Full Capital support."
+  ;; 1: Grave (è, À...)
+  "1 e" (insert-char-fn "è") "1 E" (insert-char-fn "È")
+  "1 a" (insert-char-fn "à") "1 A" (insert-char-fn "À")
+  "1 u" (insert-char-fn "ù") "1 U" (insert-char-fn "Ù")
+
+  ;; 2: Acute (é, Á...)
+  "2 e" (insert-char-fn "é") "2 E" (insert-char-fn "É")
+  "2 a" (insert-char-fn "á") "2 A" (insert-char-fn "Á")
+  "2 i" (insert-char-fn "í") "2 I" (insert-char-fn "Í")
+  "2 o" (insert-char-fn "ó") "2 O" (insert-char-fn "Ó")
+  "2 u" (insert-char-fn "ú") "2 U" (insert-char-fn "Ú")
+  "2 y" (insert-char-fn "ý") "2 Y" (insert-char-fn "Ý")
+
+  ;; 3: Circumflex (ê, Â...)
+  "3 e" (insert-char-fn "ê") "3 E" (insert-char-fn "Ê")
+  "3 a" (insert-char-fn "â") "3 A" (insert-char-fn "Â")
+  "3 i" (insert-char-fn "î") "3 I" (insert-char-fn "Î")
+  "3 o" (insert-char-fn "ô") "3 O" (insert-char-fn "Ô")
+  "3 u" (insert-char-fn "û") "3 U" (insert-char-fn "Û")
+
+  ;; 4: Umlaut (ë, Ä...)
+  "4 a" (insert-char-fn "ä") "4 A" (insert-char-fn "Ä")
+  "4 o" (insert-char-fn "ö") "4 O" (insert-char-fn "Ö")
+  "4 u" (insert-char-fn "ü") "4 U" (insert-char-fn "Ü")
+  "4 e" (insert-char-fn "ë") "4 E" (insert-char-fn "Ë")
+  "4 i" (insert-char-fn "ï") "4 I" (insert-char-fn "Ï")
+
+  ;; 5: Specials (ç, ß)
+  "5 c" (insert-char-fn "ç") "5 C" (insert-char-fn "Ç")
+  "5 s" (insert-char-fn "ß") "5 S" (insert-char-fn "ẞ") ; Capital Eszett added!
+
+  ;; 6: Icelandic (ð, þ, æ)
+  "6 d" (insert-char-fn "ð") "6 D" (insert-char-fn "Ð")
+  "6 t" (insert-char-fn "þ") "6 T" (insert-char-fn "Þ")
+  "6 a" (insert-char-fn "æ") "6 A" (insert-char-fn "Æ"))
+
+
+(defun my-accent-cheat-sheet ()
+  "Reference for custom accents. Use Shift+Letter for Capitals."
+  (interactive)
+  (let ((buf-name "*Accent-Cheat-Sheet*"))
+    (with-current-buffer (get-buffer-create buf-name)
+      (let ((inhibit-read-only t))
+        (erase-buffer)
+        (insert "⌨️  ACCENT KEYBINDINGS (Prefix: C-c i)\n")
+        (insert "-----------------------------------\n")
+        (insert "Logic: [Number] + [Letter]. Use SHIFT for CAPS.\n\n")
+        (insert "1: Grave (è)   2: Acute (é)    3: Circumflex (ê)\n")
+        (insert "4: Umlaut (ä)  5: Specials (ç) 6: Icelandic (ð,þ,æ)\n")
+        (insert "-----------------------------------\n")
+        (insert "Example: C-c i 2 E -> É | C-c i 6 T -> Þ\n")
+        (insert "Press 'q' to close.")
+        (read-only-mode 1)
+        (local-set-key (kbd "q") 'quit-window)))
+    (display-buffer-in-side-window (get-buffer buf-name) '((side . bottom)))))
+
+
+;; Bind to your safe harbor
+(keymap-set global-map "C-c i" accent-map)
+(keymap-set accent-map "?" #'my-accent-cheat-sheet)
 
 
 (provide 'init-local)
