@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2026-03-10 23:03:35 lolh-mbp-16>
+;;; Time-stamp: <2026-03-12 08:52:38 lolh-mbp-16>
 
 ;;; Commentary:
 ;;; init-local.el
@@ -64,7 +64,13 @@
 ;;;                         ^^
 ;;;    This will insert a space before a new note.  It may insert a space
 ;;;    in every note, but that may not be problem.
-
+;;;
+;;; NOTES:
+;;; 2026-03-12T0825 I set up Git system-wide to rebase PULLS with the following:
+;;;   git config --global pull.rebase true
+;;;   to test:
+;;;   git config --global pull.rebase run as a command should return "true"
+;;;   git config --list --show-origin | grep pull.rebase to see the file path with that config
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Code:
