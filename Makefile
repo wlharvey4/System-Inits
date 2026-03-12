@@ -1,5 +1,5 @@
 # Main Makefile for System Installation
-# Time-stamp: <2025-11-03 09:44:17 lolh-mbp-16>
+# Time-stamp: <2025-11-04 11:02:02 lolh-mbp-16>
 
 ######################################################################
 # DIRECTORIES
@@ -226,6 +226,15 @@ ABCL-INIT      := $(HOME)/.abclrc
 ABCL-JAR       := $(ABCL-BINARY)/abcl.jar
 ABCL-SH        := $(ABCL-BINARY)/abcl.sh
 ABCL-SH-LN     := $(CL-IMPL-BIN)/abcl
+ABCL-CP        := -cp $(ABCL-JAR):$(CLASSPATH)
+# Correction for Java InaccessibleObjectexception  on starting an ABCL REPL
+# Failed to introspect virtual threading methods: java.lang.reflect.InaccessibleObjectException:
+# Unable to make public java.lang.Thread java.lang.ThreadBuilders$VirtualThreadFactory.newThread(java.lang.Runnable)
+# accessible: module java.base does not "opens java.lang" to unnamed module
+# SEE 20251104T102504--abcl-error-on-starting-a-repl__abcl_cl_error_resolution.org
+ABCL-ADD-OPENS := --add-opens java.base/java.lang=ALL-UNNAMED
+ABCL-MAIN      := org.armedbear.lisp.Main
+ABCL-EXEC      := exec java $(ABCL-ADD-OPENS) $(ABCL-CP) $(ABCL-MAIN) \"'$$@'\"
 
 # ECL
 ECL-IMPL      := $(CL-IMPL)/ecl
@@ -490,8 +499,7 @@ abcl-binary-install: | $(ABCL-BINARY)
 $(ABCL-BINARY):
 	cp -R $(DLS)/$(ABCL-BINARY-V) $(ABCL-IMPL)
 	echo '#! ' $${SHELL} > $(ABCL-SH)
-	echo 'exec java -cp ' $(ABCL-JAR)':'$(CLASSPATH)' org.armedbear.lisp.Main' "\"$$@\"" >> $(ABCL-SH) >> $(ABCL-SH)
-	echo
+	echo $(ABCL-EXEC) >> $(ABCL-SH)
 	chmod 755 $(ABCL-SH)
 	ln -s $(ABCL-SH) $(ABCL-SH-LN)
 
