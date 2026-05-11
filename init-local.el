@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2026-03-12 08:52:38 lolh-mbp-16>
+;;; Time-stamp: <2026-05-10 17:53:56 lolh-mbp-16>
 
 ;;; Commentary:
 ;;; init-local.el
@@ -15,15 +15,17 @@
 ;;;    1.4. mu4e.info  is installed into /usr/local/share/info
 ;;;    1.5. /usr/local/share/info must be added to INFODIR
 ;;;    1.6. Configure mu4e
-;;; 2. Denote => ~/.local/share/emacs/denote/
+;;; 2. Denote => ~/.local/src/emacs/denote/
 ;;;    2.1. README.org needs to be compiled into denote.info, and installed into dir
 ;;;    2.2. Add key bindings
 ;;;    2.3. Set up default denote directory => ~/.local/share/notes
 ;;;    2.4. Set up silos
-;;;         i. ccvlp2
-;;;        ii. law
-;;;       iii. legal
-;;;        iv. personal
+;;;          i. ccvlp
+;;;         ii. law
+;;;        iii. personal
+;;;         iv. languages
+;;;         iv.a french
+;;;         iv.b german
 ;;; 3. Org
 ;;;    3.1. require ox-texinfo to be able to export to info files
 ;;;    3.2. org-attach-method needs to be set of lns
@@ -31,6 +33,7 @@
 ;;;    3.4. Add key C-c C-. for an inactive time stamp
 ;;;    3.5. Add todo keywords
 ;;;    3.6. Add org agenda files
+;;;    3.7 initlocal/org-babel-tangle-config=>automatically tangle literate files with special keyword
 ;;; 4. Diary
 ;;;    4.1. Set diary file to ~/.local/share/emacs/diary
 ;;; 5. Emacs
@@ -217,6 +220,121 @@
          :publishing-function org-md-publish-to-md
          :section-numbers nil)))
 
+
+;;; org-babel-tangle-config
+;; 2026-03-13T23:00
+
+;; This is a custom function that tangles your Org files automatically
+;; every  time you  save  an  Org buffer.   To  automate  this, use  a
+;; buffer-local hook:  after-save-hook.  This  ensures that  only your
+;; specific configuration files tangle on  save, rather than every Org
+;; file you happen to open.
+
+;; How to use it:
+;; Just add  #+auto_tangle: t anywhere  in your Org file  header. Now,
+;; every  time you  press C-x  C-s, Emacs  will instantly  update your
+;; tangled file at the path resolved by (file-truename "~").
+
+;; Why this is safer for your workflow
+
+;; Non-Blocking: If org-babel-tangle-collect-blocks returns a format
+;; the code doesn't recognize (e.g., if it stops being an Alist), the
+;; condition-case will catch the error. You’ll see a message in the
+;; minibuffer, but you won't be stuck with a broken "save" process.
+
+;; Debug-Ready: The (error-message-string err) will tell you exactly
+;; what went wrong (e.g., "Wrong type argument: listp, some-value"),
+;; which makes it much easier to fix if Org-mode updates again.
+
+;; Dual-Machine Reliability: Since you're moving between MacBooks,
+;; this safety net is vital. If one machine has an older version of
+;; Org and the other has a newer one, this function won't break your
+;; init.el on either.
+
+;;The Smart Auto-Tangle Hook
+(defun init-local/org-babel-tangle-config ()
+  "Tangle and add aligned Denote-style metadata headers to the top of the file."
+  (when (and (eq major-mode 'org-mode)
+             (save-excursion
+               (goto-char (point-min))
+               (re-search-forward "#\\+auto_tangle: t" nil t)))
+    (condition-case err
+        (let* ((org-confirm-babel-evaluate nil)
+               ;; Use 'car' to extract the string path from your Org version's list structure
+               (all-targets (delete-dups (mapcar #'car (org-babel-tangle-collect-blocks)))))
+
+          (org-babel-tangle t)
+
+          (dolist (target all-targets)
+            (when (stringp target)
+              (let* ((dest (expand-file-name target))
+                     (fname (file-name-nondirectory dest))
+                     (fext (file-name-extension dest))
+                     (mode-str (cond ((string= fext "el") "emacs-lisp")
+                                     ((string= fext "sh") "shell-script")
+                                     ((string= fext "zsh") "sh")
+                                     (t "text")))
+                     ;; Define headers in a list for easier alignment calculation
+                     (headers `(("+FILENAME:"    . ,fname)
+                                ("+SYSTEM-NAME:" . ,(system-name))
+                                ("+USER-NAME:"   . ,(user-login-name))
+                                ("+Time-stamp:"  . ,(format "<%s>" (format-time-string "%Y-%m-%d %H:%M:%S")))
+                                ("+mode:"        . ,mode-str)))
+                     ;; Calculate the length of the longest header key
+                     (max-key-len (apply #'max (mapcar (lambda (h) (length (car h))) headers))))
+
+                (when (file-exists-p dest)
+                  (with-current-buffer (find-file-noselect dest)
+                    (if (fboundp 'flymake-mode) (flymake-mode -1))
+                    (if (fboundp 'flycheck-mode) (flycheck-mode -1))
+
+                    (save-excursion
+                      (goto-char (point-min))
+                      ;; 1. Remove any old Denote-style header lines
+                      (while (looking-at "^[;#]+\\+\\(FILENAME\\|SYSTEM-NAME\\|USER-NAME\\|Time-stamp\\|mode\\):.*\n")
+                        (delete-region (point) (line-beginning-position 2)))
+
+                      ;; 2. Insert new aligned headers
+                      (let ((c (if (string= fext "el") ";;" "#")))
+                        (dolist (h headers)
+                          (let* ((key (car h))
+                                 (val (cdr h))
+                                 ;; Padding: (Max Length - Current Key Length) + 1 extra space
+                                 (padding (make-string (+ 1 (- max-key-len (length key))) ?\s)))
+                            (insert (format "%s%s%s%s\n" c key padding val))))
+                        (insert (format "%s\n" c)))) ; Add a trailing empty comment line for spacing
+                    (save-buffer)
+                    (kill-buffer))))))
+          (message "Tangle complete: Aligned Denote-style headers applied."))
+      (error (message "Auto-tangle failed: %s" (error-message-string err))))))
+
+(add-hook 'after-save-hook #'init-local/org-babel-tangle-config)
+
+;; 4. Bonus: Keybinding to jump to the output folder
+(global-set-key (kbd "C-c o c")
+                (lambda () (interactive)
+                  (dired (expand-file-name ".emacs.d/" (file-truename "~")))))
+
+
+;; The "Jump to System-Inits directory" Function
+
+;; Add this to your init-local.el. It uses (file-truename "~") to
+;; ensure it always finds the right path, even if you move between
+;; your two MacBooks.
+
+;; C-c o d
+(defun init-local/open-tangle-directory ()
+  "Open the directory where my tangled config files live."
+  (interactive)
+  (let ((target-dir (file-truename "~/.local/src/System-Inits/")))
+    (if (file-directory-p target-dir)
+        (dired target-dir)
+      (message "Directory %s does not exist!" target-dir))))
+
+;; Bind it to a key for quick access
+(global-set-key (kbd "C-c o d") #'init-local/open-tangle-directory)
+
+
 ;; (setq org-static-blog-page-header nil)
 ;; (setq org-static-blog-page-preamble nil)
 ;; (setq org-static-blog-page-postamble nil)
@@ -329,7 +447,10 @@
        (expand-file-name "~/.local/share/notes/ccvlp/attorneys")
        (expand-file-name "~/.local/share/notes/ccvlp/law")
        (expand-file-name "~/.local/share/notes/legal")
-       (expand-file-name "~/.local/share/notes/personal")))
+       (expand-file-name "~/.local/share/notes/personal")
+       (expand-file-name "~/.local/share/notes/languages")
+       (expand-file-name "~/.local/share/notes/languages/french")
+       (expand-file-name "~/.local/share/notes/languages/german")))
 
 (setq denote-silo-extras-directories
       '("~/.local/share/notes/ccvlp"
@@ -338,7 +459,10 @@
         "~/.local/share/notes/ccvlp/clients"
         "~/.local/share/notes/ccvlp/law"
         "~/.local/share/notes/legal"
-        "~/.local/share/notes/personal"))
+        "~/.local/share/notes/personal"
+        "~/.local/share/notes/languages"
+        "~/.local/share/notes/languages/french"
+        "~/.local/share/notes/languages/german"))
 
 (setq denote-journal-extras-directory
       (file-name-concat (denote-directory) "personal" "journal"))
