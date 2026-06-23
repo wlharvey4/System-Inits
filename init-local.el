@@ -1,13 +1,15 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2026-05-10 17:53:56 lolh-mbp-16>
+;;; Time-stamp: <2026-06-16 15:13:43 lolh-mbp-16>
 
 ;;; Commentary:
 ;;; init-local.el
 
 ;;; This code covers the following local configurations:
+;;;
 ;;; 0. purcell/emacs.d => ~/.local/share/emacs/purcell-emacs.d/
 ;;;    0.1. ~/.config/emacs is a symlink to purcell-emacs.d/
 ;;;    0.2 ~/.local/share/emacs/purcell-emacs.d/list
+;;;
 ;;; 1. mu/mu4e => ~/.local/share/mu installed into /usr/local/
 ;;;    1.1. mu is installed in /usr/local/bin
 ;;;    1.2. mu4e is installed into /usr/local/share/emacs/site-lisp
@@ -15,6 +17,7 @@
 ;;;    1.4. mu4e.info  is installed into /usr/local/share/info
 ;;;    1.5. /usr/local/share/info must be added to INFODIR
 ;;;    1.6. Configure mu4e
+;;;
 ;;; 2. Denote => ~/.local/src/emacs/denote/
 ;;;    2.1. README.org needs to be compiled into denote.info, and installed into dir
 ;;;    2.2. Add key bindings
@@ -26,6 +29,7 @@
 ;;;         iv. languages
 ;;;         iv.a french
 ;;;         iv.b german
+;;;
 ;;; 3. Org
 ;;;    3.1. require ox-texinfo to be able to export to info files
 ;;;    3.2. org-attach-method needs to be set of lns
@@ -34,8 +38,10 @@
 ;;;    3.5. Add todo keywords
 ;;;    3.6. Add org agenda files
 ;;;    3.7 initlocal/org-babel-tangle-config=>automatically tangle literate files with special keyword
+;;;
 ;;; 4. Diary
 ;;;    4.1. Set diary file to ~/.local/share/emacs/diary
+;;;
 ;;; 5. Emacs
 ;;;    5.1. time-stamp
 ;;;    5.2. visual-line-mode
@@ -44,13 +50,37 @@
 ;;;           symlink ~/.local/src/System-Inits/bookmarks.el to
 ;;;           ~/.local/share/emacs/site-list/bookmarks.el
 ;;;    5.5. Accent-Map custom keybindings
+;;;
 ;;; 6. Local Emacs Code should be Symlinked into a Site Lisp directory
 ;;;    6.1. ~/.local/src/emacs/utils/template-funcs -> ~/.local/share/emacs/site-lisp/template-funcs
 ;;;    6.2, ~/.local/src/emacs/utils/extract -> ~/.local/share/emacs/site-lisp/extract
+;;;
 ;;; 7. Common Lisp
 ;;;    7.1 Prefix is ~/.local/src/common-lisp
 ;;;    7.2 bin is ~/.local/src/common-lisp/bin
 ;;;    7.3 implementations at ~/.local/source/common-lisp/implementations
+;;;
+;;; 8. Language Accents in French, German, and Spanish | 2026-06-04T12:00
+;;;    8.1 (global-set-key (kbd "C-c f f") (lambda () (interactive) (activate-input-method "french-prefix")))
+;;;    8.2 (global-set-key (kbd "C-c f s") (lambda () (interactive) (activate-input-method "spanish-prefix")))
+;;;    8.3 (global-set-key (kbd "C-c f g") (lambda () (interactive) (activate-input-method "german-prefix")))
+;;;    8.4 Type C-c l f to review or write French.
+;;;    8.5 Hit C-\ to instantly toggle back to standard English for regular typing or coding.
+;;;    8.6 Type C-c l s when you want to switch over to Spanish, and your fingers will already know exactly what to do.
+;;;
+;;; 9. Dictionaries and auto-writeroom-mode for Denote file editing
+;;;    2026-06-16
+;;; Fantastic! That is the ultimate feeling in Emacs configuration—when the startup scripts balance perfectly, the bindings drop into place globally, and the system just *works* from the very first frame.
+
+;;; You now have a beautifully streamlined, highly custom linguistic and text-processing environment. Let's do a quick victory-lap review of what you just built:
+
+;;; The Matrix Core:** A completely offline translation engine mapping nearly 200,000 words across German, Swedish, and French (via that massive 79k Wiktionary upgrade).
+;;; The Intelligence Layer:** A regex processor that completely strips raw web code out of the backend data and automatically trims down complex French elisions (`l'`, `d'`) to isolate the root lemma on the fly.
+;;; The Sandbox Prefix:** A persistent global keyboard hub bound to **`C-x D`** that is universally alive the second Emacs launches.
+;;; The Flow State Auto-Toggle:** A smart-path directory listener bound to **`C-x D w`** that auto-snaps your newly generated or opened Denote files directly into distraction-free focus mode when you start your sessions.
+
+;;; Everything is isolated, clean, and entirely under your local terminal and script control. Enjoy the absolute fluidity of your new setup during your deep-focus writing and reading sessions! You earned this win.
+
 ;;; Appendix
 ;;; A. Maximize Screen on Opening: https://www.emacswiki.org/emacs/FullScreen
 ;;;    - variable `ns-use-native-fullscreen'=t means use native fullscreen
@@ -607,6 +637,36 @@
     (insert-char ?- line-len)
     (newline 1)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Prefix Mapping for Accented Characters (instead of the accent-map
+;;; below
+;;; 2026-06-04T10:30
+
+;;; french-prefix | spanish-prefix | german-prefix
+;;; See Emacs Help => 24.3 Input Methods and 24.4 Selecting an Input Method
+;;; C-\ to select (first time) or toggle thereafter
+;;; C-h I METHOD <RET> or
+;;; C-h C-\ METHOD <RET> for help
+
+;; With this setup, your workflow becomes completely streamlined:
+
+;; 1. Type C-c f f to review or write French.
+;; 2. Hit C-\ to instantly toggle back to standard English for regular typing or coding.
+;; 3. Type C-c f s when you want to switch over to Spanish, and your fingers will already know exactly what to do.
+
+(global-set-key (kbd "C-c f f") (lambda () (interactive) (activate-input-method "french-prefix")))
+(global-set-key (kbd "C-c f s") (lambda () (interactive) (activate-input-method "spanish-prefix")))
+(global-set-key (kbd "C-c f g") (lambda () (interactive) (activate-input-method "german-prefix")))
+
+;;; Emacs has brilliant built-in tools for handling multilingual text.
+;;; Emacs Transient Input Methods (Highly Recommended)
+
+;;; Type M-x set-input-method (or use the shortcut C-x Enter C-\)
+;;; Type spanish-postfix or spanish-prefix and hit Enter.
+
+;;; If you choose spanish-prefix, typing text becomes incredibly intuitive:
+;;; Type ~? => ¿
+;;; Type ~! => ¡
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Custom Map Keybindings for Language Accent Input: accent-map
@@ -699,6 +759,150 @@
 (keymap-set global-map "C-c i" accent-map)
 (keymap-set accent-map "?" #'my-accent-cheat-sheet)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; quick-sdcv
+;; 2026-06-16
+;; Custom Configuration for Multi-Tiered Offline SDCV Lookup
+
+;; C-x D a :: Search All dictionaries simultaneously (the original master fallback).
+;; C-x D e :: Search English-only (ready for your upcoming dictionary).
+;; C-x D f, C-x D g, C-x D s, C-x D i :: Target your specific foreign languages.
+
+(maybe-require-package 'quick-sdcv)
+
+(with-eval-after-load 'quick-sdcv
+  (setq quick-sdcv-data-dir (expand-file-name "~/.stardict/dic"))
+  (setq quick-sdcv-open-buffer-function #'display-buffer)
+  (define-key quick-sdcv-mode-map (kbd "q") 'quit-window))
+
+(defun my-sdcv-lookup-engine (&optional dict-name)
+  "Core engine to look up word at point. If DICT-NAME is provided,
+queries that database explicitly; otherwise, searches all databases.
+Automatically strips French elision prefixes (e.g., l', d', qu')."
+  (let ((word (thing-at-point 'word t)))
+    (if (not word)
+        (message "No word found at point to look up.")
+      ;; Clean up French elisions down to the root word
+      (setq word (replace-regexp-in-string
+                  (rx (seq string-start
+                           (or "l" "d" "j" "m" "t" "s" "n" "c" "qu")
+                           (or "'" "’")))
+                  "" word))
+
+      (let* ((cmd (if dict-name
+                      (format "sdcv -n -u %s %s"
+                              (shell-quote-argument dict-name)
+                              (shell-quote-argument word))
+                    (format "sdcv -n %s" (shell-quote-argument word))))
+             (raw-output (shell-command-to-string cmd))
+             (output raw-output))
+
+        ;; Parse out the HTML markup structures cleanly
+        (setq output (replace-regexp-in-string "<br\\s-*/?>" "\n" output))
+        (setq output (replace-regexp-in-string "<li>" "\n • " output))
+        (setq output (replace-regexp-in-string "<[^>]+>" "" output))
+        (setq output (replace-regexp-in-string "\n\n+" "\n" output))
+        (setq output (string-trim output))
+
+        ;; Verify if sdcv returned an actual entry
+        (if (string-match-p "Your search found" output)
+            (message "No entry found for '%s'%s."
+                     word (if dict-name (format " in %s" dict-name) ""))
+          (message "%s" output))))))
+
+;; --- Interactive Key Target Commands ---
+
+(defun my-sdcv-lookup-all ()
+  "Look up word at point across all active dictionaries simultaneously."
+  (interactive)
+  (my-sdcv-lookup-engine)) ; No argument defaults to global scan
+
+(defun my-sdcv-lookup-english ()
+  "Look up word at point in the English dictionary."
+  (interactive)
+  ;; Replace the string below with the exact name from 'sdcv -l' once installed
+  (my-sdcv-lookup-engine "English Dictionary Placeholder"))
+
+(defun my-sdcv-lookup-french ()
+  "Look up French word at point."
+  (interactive)
+  (my-sdcv-lookup-engine "French-English Wiktionary dictionary (fr-en)"))
+
+(defun my-sdcv-lookup-german ()
+  "Look up German word at point."
+  (interactive)
+  (my-sdcv-lookup-engine "German - English"))
+
+(defun my-sdcv-lookup-swedish ()
+  "Look up Swedish word at point."
+  (interactive)
+  (my-sdcv-lookup-engine "Swedish - English"))
+
+(defun my-sdcv-lookup-icelandic ()
+  "Look up Icelandic word at point."
+  (interactive)
+  (my-sdcv-lookup-engine "Icelandic-English Placeholder"))
+
+
+;; end quick-scdv
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Denote auto writeroom toggle
+;; 2026-06-16
+
+;; C-x D w to toggle writeroom for Denote files automatically
+
+(defvar my-auto-writeroom-for-denote-p nil
+  "Non-nil means automatically enable `writeroom-mode` when opening Denote files.")
+
+(defun my-denote-writeroom-hook-function ()
+  "Enable `writeroom-mode` if the opened file lives inside the Denote directory."
+  (when (and my-auto-writeroom-for-denote-p
+             (fboundp 'writeroom-mode)
+             (fboundp 'denote-directory)
+             (string-prefix-p (expand-file-name (denote-directory))
+                              (expand-file-name default-directory)))
+    (writeroom-mode 1)))
+
+;; Attach the scanner to Emacs' global file-opening engine
+(add-hook 'find-file-hook #'my-denote-writeroom-hook-function)
+
+;;;###autoload
+(defun my-toggle-denote-writeroom-focus ()
+  "Toggle automatic `writeroom-mode` for newly opened Denote files."
+  (interactive)
+  (setq my-auto-writeroom-for-denote-p (not my-auto-writeroom-for-denote-p))
+  (message "Automatic Writeroom for Denote files is now: %s"
+           (if my-auto-writeroom-for-denote-p "ENABLED 🧘" "DISABLED 🛑")))
+
+;; end auto writeroom
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Keymapping for writeroom mode and dictionaries
+;; 2026-06-16
+
+;; 1. Establish a persistent global keymap for your dictionary/writing sandbox
+(defvar my-sandbox-prefix-map (make-sparse-keymap)
+  "Keymap for custom offline dictionary and writing workspace commands.")
+
+;; 2. Bind the prefix map globally to the capital 'D' slot under C-x
+(global-set-key (kbd "C-x D") my-sandbox-prefix-map)
+
+;; 3. Populate the map directly so these are active immediately at startup
+(define-key my-sandbox-prefix-map (kbd "a") 'my-sdcv-lookup-all)
+(define-key my-sandbox-prefix-map (kbd "e") 'my-sdcv-lookup-english)
+(define-key my-sandbox-prefix-map (kbd "f") 'my-sdcv-lookup-french)
+(define-key my-sandbox-prefix-map (kbd "g") 'my-sdcv-lookup-german)
+(define-key my-sandbox-prefix-map (kbd "s") 'my-sdcv-lookup-swedish)
+(define-key my-sandbox-prefix-map (kbd "i") 'my-sdcv-lookup-icelandic)
+(define-key my-sandbox-prefix-map (kbd "w") 'my-toggle-denote-writeroom-focus)
+
+;; end keymapping
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (provide 'init-local)
 ;;; init-local.el ends here
