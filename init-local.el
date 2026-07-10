@@ -1,5 +1,5 @@
 ;;; init-local.el --- Local Lisp support -*- lexical-binding: t -*-
-;;; Time-stamp: <2026-06-16 15:13:43 lolh-mbp-16>
+;;; Time-stamp: <2026-06-25 08:51:46 lolh-mbp-16>
 
 ;;; Commentary:
 ;;; init-local.el
@@ -232,14 +232,27 @@
 ;;         (sequence "TASK(T!)" "NEXT(N@)" "|" "CLOSED(C@)")))
 
 
+
 (setq org-agenda-files
-      '("~/.local/share/notes/"
-        "~/.local/share/notes/ccvlp/"
+      '("~/.local/share/notes/ccvlp/"
         "~/.local/share/notes/ccvlp/cases/"
         "~/.local/share/notes/ccvlp/clients/"
         "~/.local/share/notes/ccvlp/hjp/"
         "~/.local/share/notes/law/"
         "~/.local/share/notes/personal/"))
+
+;; 1. Allow global tracking, BUT...
+(setq org-id-track-globally t)
+
+;; 2. ...strictly limit the tracking files to your active agenda/notes list
+(setq org-id-extra-files org-agenda-files)
+
+;; 3. Stop Emacs from hunting down files on its own
+(setq org-id-files nil)
+
+;; M-x org-id-update-id-locations
+
+
 
 (setq org-default-notes-file "~/.local/share/notes/captured.org")
 
